@@ -1,0 +1,28 @@
+app-id: org.aliflang.lang
+runtime: org.kde.Platform
+runtime-version: '6.9'
+sdk: org.kde.Sdk
+command: alifstudio
+finish-args:
+  - --device=dri
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  - --filesystem=home
+  - --share=network
+  - --env=PATH=$PATH:/usr/bin:/bin:/app/bin
+
+modules:
+  - name: taifeditor
+    buildsystem: qmake
+    subdir: taif
+    post-install:
+      - "install -Dm755 Taif /app/bin/alifstudio"
+    #sources:
+    #  - type: git
+    #    url: https://github.com/alifcommunity/TaifEditor.git
+    #    branch: main
+    #    commit: <latest-TaifEditor-commit-hash>
+    sources:
+      - type: dir
+        path: ../TaifEditor
