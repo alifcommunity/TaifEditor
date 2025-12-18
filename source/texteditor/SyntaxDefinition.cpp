@@ -259,65 +259,63 @@ QTextCharFormat SyntaxDefinition::createFormatFromStyleNum(const QString &defSty
     // تعيين الألوان بناءً على defStyleNum
     if (defStyleNum == "dsNormal") {
         // النص العادي - لون افتراضي
-        format.setForeground(QColor("#cccccc"));
+        format.setForeground(QColor(250, 250, 250));
     }
-    else if (defStyleNum == "dsKeyword" || defStyleNum == "dsControlFlow") {
-        // الكلمات المفتاحية - أزرق
-        format.setForeground(QColor("#569cd6"));
-        format.setFontWeight(QFont::Bold);
-    }
+    // else if (defStyleNum == "dsKeyword" || defStyleNum == "dsControlFlow") {
+    //     // الكلمات المفتاحية - أزرق
+    //     format.setForeground(QColor("#569cd6"));
+    // }
     else if (defStyleNum == "dsOperator") {
-        // العوامل - رمادي فاتح
-        format.setForeground(QColor("#d4d4d4"));
+        // المعاملات
+        format.setForeground(QColor(234, 118, 203));
     }
-    else if (defStyleNum == "dsBuiltIn") {
-        // الدوال المدمجة - أصفر
-        format.setForeground(QColor("#dcdcaa"));
-    }
-    else if (defStyleNum == "dsVariable" || defStyleNum == "dsFunction") {
-        // المتغيرات والدوال - أزرق فاتح
-        format.setForeground(QColor("#9cdcfe"));
-    }
+    // else if (defStyleNum == "dsBuiltIn") {
+    //     // الدوال المدمجة - أصفر
+    //     format.setForeground(QColor("#dcdcaa"));
+    // }
+    // else if (defStyleNum == "dsVariable" || defStyleNum == "dsFunction") {
+    //     // المتغيرات والدوال - أزرق فاتح
+    //     format.setForeground(QColor("#9cdcfe"));
+    // }
     else if (defStyleNum == "dsString" || defStyleNum == "dsVerbatimString" || defStyleNum == "dsSpecialString") {
-        // النصوص - برتقالي
-        format.setForeground(QColor("#ce9178"));
+        // النصوص
+        format.setForeground(QColor(63, 209, 112));
     }
     else if (defStyleNum == "dsComment") {
-        // التعليقات - أخضر
-        format.setForeground(QColor("#6a9955"));
-        format.setFontItalic(true);
+        // التعليقات
+        format.setForeground(QColor(120, 120, 120));
     }
     else if (defStyleNum == "dsFloat" || defStyleNum == "dsDecVal" || defStyleNum == "dsBaseN") {
-        // الأرقام - أخضر فاتح
-        format.setForeground(QColor("#b5cea8"));
+        // الأرقام
+        format.setForeground(QColor(170, 112, 255));
     }
-    else if (defStyleNum == "dsImport" || defStyleNum == "dsPreprocessor") {
-        // الاستيراد والمعالجات - وردي
-        format.setForeground(QColor("#c586c0"));
-    }
+    // else if (defStyleNum == "dsImport" || defStyleNum == "dsPreprocessor") {
+    //     // الاستيراد والمعالجات - وردي
+    //     format.setForeground(QColor("#c586c0"));
+    // }
     else if (defStyleNum == "dsError") {
-        // الأخطاء - أحمر
-        format.setForeground(QColor("#f44747"));
+        // الأخطاء
+        format.setForeground(QColor(210, 15, 57));
         format.setFontUnderline(true);
     }
-    else if (defStyleNum == "dsAttribute") {
-        // السمات - أزرق
-        format.setForeground(QColor("#9cdcfe"));
-        format.setFontItalic(true);
-    }
-    else if (defStyleNum == "dsChar") {
-        // المحارف - برتقالي
-        format.setForeground(QColor("#ce9178"));
-    }
-    else if (defStyleNum == "dsSpecialChar") {
-        // المحارف الخاصة - وردي
-        format.setForeground(QColor("#d7ba7d"));
-    }
-    else {
-        // نمط افتراضي
-        format.setForeground(QColor("#cccccc"));
-        qDebug() << "نمط غير معروف:" << defStyleNum << "-> استخدام الافتراضي";
-    }
+    // else if (defStyleNum == "dsAttribute") {
+    //     // السمات - أزرق
+    //     format.setForeground(QColor("#9cdcfe"));
+    //     format.setFontItalic(true);
+    // }
+    // else if (defStyleNum == "dsChar") {
+    //     // المحارف - برتقالي
+    //     format.setForeground(QColor("#ce9178"));
+    // }
+    // else if (defStyleNum == "dsSpecialChar") {
+    //     // المحارف الخاصة - وردي
+    //     format.setForeground(QColor("#d7ba7d"));
+    // }
+    // else {
+    //     // نمط افتراضي
+    //     format.setForeground(QColor("#cccccc"));
+    //     qDebug() << "نمط غير معروف:" << defStyleNum << "-> استخدام الافتراضي";
+    // }
 
     return format;
 }
