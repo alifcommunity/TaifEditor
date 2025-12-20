@@ -188,7 +188,7 @@ QVector<Token> Lexer::tokenize(const QString& text, int oldPos) {
             tokens.append(Token(TokenType::Operator, start, pos - start, currentChar));
             break;
         }
-        else if (QString("+-*/\\=<>!&|%^~:;؛(),.[]{}").contains(currentChar)) {
+        else if (QString("+-*/\\=<>!&|%^~:;؛(),،.[]{}").contains(currentChar)) {
             int start = pos;
             QString op;
             op += currentChar;
@@ -236,7 +236,7 @@ bool Lexer::isBiltinK(const QString& word) {
 
 bool Lexer::isSpecialK(const QString& word) {
 	static const QSet<QString> keywords = {
-        "__تهيئة__", "هذا", "اصل"
+        "__تهيئة__", "هذا", "اصل", "__عرض__", "__اجمع__", "__اجمع_ع__", "__استدعاء__"
 	};
 	return keywords.contains(word);
 }
