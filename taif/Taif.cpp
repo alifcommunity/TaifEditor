@@ -60,7 +60,7 @@ Taif::Taif(const QString& filePath, QWidget *parent)
     // الخطوة 2: إعداد النافذة وشريط القوائم
     // ===================================================================
     QScreen* screenSize = QGuiApplication::primaryScreen();
-    this->setGeometry(screenSize->size().width() / 4, screenSize->size().height() / 5, 900, 700);
+    this->setGeometry(screenSize->size().width() / 6, screenSize->size().height() / 7, 900, 700);
     this->setMenuBar(menuBar);
     // ===================================================================
     //  الخطوة 3: إعداد شريط الأدوات وزر تبديل الشريط
@@ -69,6 +69,7 @@ Taif::Taif(const QString& filePath, QWidget *parent)
     mainToolBar->setObjectName("mainToolBar");
     mainToolBar->setMovable(false);
     mainToolBar->setIconSize(QSize(30, 30));
+    mainToolBar->setStyleSheet("QToolButton:hover {background-color: #334466}");
     this->addToolBar(Qt::RightToolBarArea, mainToolBar);
 
     toggleSidebarAction = new QAction(this);
@@ -79,10 +80,10 @@ Taif::Taif(const QString& filePath, QWidget *parent)
 
     QAction *runToolbarAction = new QAction(this);
     runToolbarAction->setIcon(QIcon(":/icons/resources/run.png"));
-    runToolbarAction->setToolTip("تشغيل الملف الحالي (Run)");
+    runToolbarAction->setToolTip("تشغيل الملف الحالي");
+
     mainToolBar->addAction(runToolbarAction);
     connect(runToolbarAction, &QAction::triggered, this, &Taif::runAlif);
-
     // mainToolBar->addSeparator();
     // mainToolBar->addAction(menuBar->newAction);
 
