@@ -26,11 +26,13 @@ WelcomeWindow::WelcomeWindow(QWidget *parent)
 
     QHBoxLayout *headerContent = new QHBoxLayout();
     QLabel *logoLabel = new QLabel();
-    logoLabel->setPixmap(QPixmap(":/icons/resources/TaifLogo.ico").scaled(70, 70, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    logoLabel->setPixmap(QPixmap(":/icons/resources/TaifLogo.ico").scaled(90, 90, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     QVBoxLayout *textVLayout = new QVBoxLayout();
     QLabel *titleLabel = new QLabel("أهلا في محرر طيف");
     QFont titleFont;
-    titleFont.setPointSize(10);
+    QStringList NotoKufiArabicFont = QFontDatabase::applicationFontFamilies(2);
+    titleFont.setFamily(NotoKufiArabicFont.at(0));
+    titleFont.setPixelSize(18);
     titleFont.setBold(true);
     titleLabel->setFont(titleFont);
     QLabel *subtitleLabel = new QLabel("طيف - محرر لغة ألف");
@@ -114,7 +116,6 @@ WelcomeWindow::WelcomeWindow(QWidget *parent)
 
     QString styleSheet = R"(
         QWidget {
-            font-size: 10pt;
             background-color: #141520;
             color: #cccccc;
         }

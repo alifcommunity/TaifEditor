@@ -25,9 +25,11 @@ TConsole::TConsole(QWidget *parent)
     m_output->setWordWrapMode(QTextOption::NoWrap);
     // simple monospace font
     QFont f = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-    f.setPointSize(10);
+    f.setPixelSize(15);
     m_output->setFont(f);
     m_input->setFont(f);
+
+    setStyleSheet("QWidget {background-color: #03091A; color: #DEE8FF;}");
 
     auto *lay = new QVBoxLayout(this);
     lay->setContentsMargins(0,0,0,0);

@@ -69,7 +69,7 @@ Taif::Taif(const QString& filePath, QWidget *parent)
     mainToolBar->setObjectName("mainToolBar");
     mainToolBar->setMovable(false);
     mainToolBar->setIconSize(QSize(30, 30));
-    mainToolBar->setStyleSheet("QToolButton:hover {background-color: #334466}");
+    mainToolBar->setStyleSheet("QToolButton:hover {background-color: #334466;}");
     this->addToolBar(Qt::RightToolBarArea, mainToolBar);
 
     toggleSidebarAction = new QAction(this);
@@ -124,7 +124,6 @@ Taif::Taif(const QString& filePath, QWidget *parent)
 
     consoleTabWidget->addTab(cmdConsole, terminalName);
     cmdConsole->setConsoleRTL();
-    cmdConsole->setStyleSheet("QWidget { background: black }");
     cmdConsole->startCmd();
 
 
@@ -941,7 +940,6 @@ void Taif::runAlif() {
         consoleTabWidget->addTab(console, "مخرجات ألف");
         console->setLayoutDirection(Qt::RightToLeft);
         console->setConsoleRTL();
-        console->setStyleSheet("QWidget {background: black}");
     }
 
     consoleTabWidget->setCurrentWidget(console);
