@@ -43,6 +43,7 @@ WelcomeWindow::WelcomeWindow(QWidget *parent)
     headerContent->addLayout(textVLayout);
     headerContent->addSpacing(10);
     headerContent->addLayout(textVLayout);
+    subtitleLabel->setFont(titleFont);
 
     QVBoxLayout *mainContentLayout = new QVBoxLayout();
     mainContentLayout->setSpacing(20);

@@ -58,7 +58,7 @@ Taif::Taif(const QString& filePath, QWidget *parent)
     // ===================================================================
     QScreen* screen = QGuiApplication::primaryScreen();
     QRect screenGeo = screen->availableGeometry();
-    this->setGeometry(screenGeo.left(), screenGeo.top(), 900, 700);
+    this->setGeometry(screenGeo.right() - 1000, screenGeo.top() + 100, 900, 700);
     this->setMenuBar(menuBar);
     // ===================================================================
     //  الخطوة 3: إعداد شريط الأدوات وزر تبديل الشريط
@@ -279,7 +279,6 @@ Taif::Taif(const QString& filePath, QWidget *parent)
             background-color: #1e202e;
         }
         QTabWidget#MainTabs QTabBar { /* شريط التبويبات نفسه */
-            font-size: 10pt !important;
             background-color: #1e202e;
             border: none;
             qproperty-drawBase: 0;
@@ -288,7 +287,9 @@ Taif::Taif(const QString& filePath, QWidget *parent)
         }
        QTabWidget#MainTabs QTabBar::tab {
             background: #2d2d30;
+            font-size: 12px !important;
             color: #909090;
+            min-height: 25px;
             padding: 0px 0px;
             border: none;
             border-top: 1px solid #444444;
