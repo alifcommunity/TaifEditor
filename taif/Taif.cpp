@@ -58,7 +58,12 @@ Taif::Taif(const QString& filePath, QWidget *parent)
     // ===================================================================
     QScreen* screen = QGuiApplication::primaryScreen();
     QRect screenGeo = screen->availableGeometry();
-    this->setGeometry(screenGeo.right() - 1000, screenGeo.top() + 100, 900, 700);
+    int margin = 100;
+    int x = screenGeo.right() - screenGeo.size().width() + margin * 2;
+    int y = screenGeo.top() + 30 + margin / 2; // 30 is top system bar height
+    int width = screenGeo.size().width() - margin * 4;
+    int height = screenGeo.size().height() - margin;
+    this->setGeometry(x, y, width, height);
     this->setMenuBar(menuBar);
     // ===================================================================
     //  الخطوة 3: إعداد شريط الأدوات وزر تبديل الشريط
@@ -173,7 +178,7 @@ Taif::Taif(const QString& filePath, QWidget *parent)
     QShortcut *goToLineShortcut = new QShortcut(QKeySequence("Ctrl+G"), this);
     connect(goToLineShortcut, &QShortcut::activated, this, &Taif::goToLine);
 
-    QShortcut *commentShortcut = new QShortcut(QKeySequence("Ctrl+ظ"), this);
+    QShortcut *commentShortcut = new QShortcut(QKeySequence("Ctrl+/"), this);
     connect(commentShortcut, &QShortcut::activated, this, [this](){
         if (TEditor* editor = currentEditor()) editor->toggleComment();
     });
@@ -959,14 +964,10 @@ void Taif::runAlif() {
         console = new TConsole(this);
         console->setObjectName("interactiveConsole");
         consoleTabWidget->addTab(console, "مخرجات ألف");
-        console->setLayoutDirection(Qt::RightToLeft);
         console->setConsoleRTL();
     }
 
     consoleTabWidget->setCurrentWidget(console);
-    console->clear();
-    console->appendPlainTextThreadSafe("🚀 بدء تشغيل ملف ألف...");
-    console->appendPlainTextThreadSafe("📄 الملف: " + QFileInfo(filePath).fileName());
 
     if (!consoleTabWidget->isVisible() || consoleTabWidget->height() < 50) {
         int totalHeight = editorSplitter->height();
@@ -982,7 +983,6 @@ void Taif::runAlif() {
     }
 
     consoleTabWidget->setVisible(true);
-
 
     QString program;
     QString appDir = QCoreApplication::applicationDirPath();
@@ -1001,7 +1001,7 @@ void Taif::runAlif() {
 #endif
 
     if (!QFile::exists(program)) {
-        console->appendPlainTextThreadSafe("❌ خطأ فادح: لم يتم العثور على مترجم ألف!");
+        console->appendPlainTextThreadSafe("❌ خطأ: لم يتم العثور على مترجم ألف!");
         console->appendPlainTextThreadSafe("المسار المتوقع: " + program);
 
 #if defined(Q_OS_LINUX)
@@ -1013,8 +1013,16 @@ void Taif::runAlif() {
     QStringList args = { filePath };
     QString workingDir = QFileInfo(filePath).absolutePath();
 
+    if (worker) {
+        worker->finished(0);
+        worker = nullptr;
+    }
+    console->clear();
+    console->appendPlainTextThreadSafe("🚀 بدء تشغيل ملف ألف...");
+    console->appendPlainTextThreadSafe("📄 الملف: " + QFileInfo(filePath).fileName());
+
+    worker = new ProcessWorker(program, args, workingDir);
     QThread *thread = new QThread();
-    ProcessWorker *worker = new ProcessWorker(program, args, workingDir);
 
     worker->moveToThread(thread);
 
@@ -1032,8 +1040,9 @@ void Taif::runAlif() {
         thread->quit();
     });
 
-    connect(thread, &QThread::finished, thread, &QObject::deleteLater);
-    connect(thread, &QThread::finished, worker, &QObject::deleteLater);
+    // يسببان الخروج من البرنامج عند إعادة تشغيل ملف ألف اكثر من مرة بعد إنتهاء التنفيذ
+    // connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+    // connect(thread, &QThread::finished, worker, &QObject::deleteLater);
 
     connect(console, &TConsole::commandEntered,
             worker, &ProcessWorker::sendInput);

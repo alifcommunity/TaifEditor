@@ -91,6 +91,8 @@ void TConsole::stopCmd()
 void TConsole::clear()
 {
     m_output->clear();
+    m_pending.clear();
+    m_buffer.clear();
 }
 
 void TConsole::setConsoleRTL()
@@ -111,6 +113,7 @@ void TConsole::appendPlainTextThreadSafe(const QString &text)
         if (s.endsWith('\r')) s.chop(1);
         m_pending.append(s);
     }
+    locker.unlock();
 }
 
 void TConsole::processStdout()

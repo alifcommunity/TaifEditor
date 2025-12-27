@@ -143,7 +143,14 @@ WelcomeWindow::WelcomeWindow(QWidget *parent)
     this->setStyleSheet(styleSheet);
 
     this->setWindowTitle("Taif Editor");
-    this->resize(1024, 768);
+    QScreen* screen = QGuiApplication::primaryScreen();
+    QRect screenGeo = screen->availableGeometry();
+    int margin = 100;
+    int x = screenGeo.right() - screenGeo.size().width() + margin * 2;
+    int y = screenGeo.top() + 30 + margin / 2; // 30 is top system bar height
+    int width = screenGeo.size().width() - margin * 4;
+    int height = screenGeo.size().height() - margin;
+    setGeometry(x, y, width, height);
 
     connect(mainMenuBar, &TMenuBar::newRequested, this, &WelcomeWindow::handleNewFileRequest);
     connect(mainMenuBar, &TMenuBar::openFileRequested, this, &WelcomeWindow::handleOpenFileRequest);

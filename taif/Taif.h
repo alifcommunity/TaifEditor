@@ -5,6 +5,7 @@
 #include "TSettings.h"
 #include "TConsole.h"
 #include "TSearchPanel.h"
+#include "ProcessWorker.h"
 
 #include <QMainWindow>
 #include <QStatusBar>
@@ -76,11 +77,12 @@ private:
 
 
     QSplitter *editorSplitter;
-    TConsole *console;
+    // TConsole *console;
     QTabWidget *consoleTabWidget;
 
-    TConsole *cmdConsole;
-    TConsole *alifConsole;
+    // TConsole *cmdConsole;
+    // TConsole *alifConsole;
+    ProcessWorker *worker{};
 
     QLabel *cursorPositionLabel;
     QLabel *encodingLabel;
