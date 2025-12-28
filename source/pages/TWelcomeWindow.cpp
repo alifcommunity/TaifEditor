@@ -146,11 +146,12 @@ WelcomeWindow::WelcomeWindow(QWidget *parent)
     QScreen* screen = QGuiApplication::primaryScreen();
     QRect screenGeo = screen->availableGeometry();
     int margin = 100;
-    int x = screenGeo.right() - screenGeo.size().width() + margin * 2;
+    int widthFixedNum = 6;
+    int x = screenGeo.right() - screenGeo.size().width() + margin * widthFixedNum / 2;
     int y = screenGeo.top() + 30 + margin / 2; // 30 is top system bar height
-    int width = screenGeo.size().width() - margin * 4;
+    int width = screenGeo.size().width() - margin * widthFixedNum;
     int height = screenGeo.size().height() - margin;
-    setGeometry(x, y, width, height);
+    this->setGeometry(x, y, width, height);
 
     connect(mainMenuBar, &TMenuBar::newRequested, this, &WelcomeWindow::handleNewFileRequest);
     connect(mainMenuBar, &TMenuBar::openFileRequested, this, &WelcomeWindow::handleOpenFileRequest);

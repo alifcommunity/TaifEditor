@@ -59,9 +59,10 @@ Taif::Taif(const QString& filePath, QWidget *parent)
     QScreen* screen = QGuiApplication::primaryScreen();
     QRect screenGeo = screen->availableGeometry();
     int margin = 100;
-    int x = screenGeo.right() - screenGeo.size().width() + margin * 2;
+    int widthFixedNum = 6;
+    int x = screenGeo.right() - screenGeo.size().width() + margin * widthFixedNum / 2;
     int y = screenGeo.top() + 30 + margin / 2; // 30 is top system bar height
-    int width = screenGeo.size().width() - margin * 4;
+    int width = screenGeo.size().width() - margin * widthFixedNum;
     int height = screenGeo.size().height() - margin;
     this->setGeometry(x, y, width, height);
     this->setMenuBar(menuBar);
@@ -202,7 +203,7 @@ Taif::Taif(const QString& filePath, QWidget *parent)
     //  الخطوة 7: تطبيق التصميم (QSS)
     // ===================================================================
     QString styleSheet = R"(
-        QMainWindow { background-color: #1e202e;font-size: 12pt;  }
+        QMainWindow { background-color: #1e202e;font-size: 12px;  }
 
         /* --- تصميم شريط القوائم --- */
         QMenuBar {
@@ -959,6 +960,20 @@ void Taif::runAlif() {
         if (tab->objectName() == "interactiveConsole")
             console = qobject_cast<TConsole*>(tab);
     }
+    consoleTabWidget->setStyleSheet(R"(
+    QTabBar::tab {
+            background: transparent;
+            color: white;
+            border-top: 1px solid #30B5FF;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            min-width: 12ex;
+            padding: 2px;
+        }
+    QTabBar::tab:selected, QTabBar::tab:hover {
+        background: #006EAB;
+    }
+    )");
 
     if (!console) {
         console = new TConsole(this);
@@ -1001,6 +1016,7 @@ void Taif::runAlif() {
 #endif
 
     if (!QFile::exists(program)) {
+        console->clear();
         console->appendPlainTextThreadSafe("❌ خطأ: لم يتم العثور على مترجم ألف!");
         console->appendPlainTextThreadSafe("المسار المتوقع: " + program);
 
@@ -1089,27 +1105,32 @@ void Taif::closeTab(int index)
 /* ----------------------------------- Help Menu Button ----------------------------------- */
 
 void Taif::aboutTaif() {
-    QMessageBox::information(nullptr,
-                             "عن المحرر"
-                             ,R"(
-محرر طيف (نـ3) 1445-1446
+    QMessageBox messageDialog{};
+    messageDialog.setWindowTitle("عن محرر طيف");
+    messageDialog.setText(R"(
+        محرر طيف (نـ3) 1445-1446
 
-© الحقوق محفوظة لصالح
-برمجيات ألف - عبدالرحمن ومحمد الخطيب
+        © الحقوق محفوظة لصالح
+        برمجيات ألف - عبدالرحمن ومحمد الخطيب - سوريا
 
-محرر نصي خاص بلغة ألف نـ5
-يعمل على جميع المنصات "ويندوز - لينكس - ماك"
-ـــــــــــــــــــــــــــــــــــــــــــــــــــــ
-المحرر لا يزال تحت التطوير وقد يحتوي بعض الاخطاء
-نرجو تبليغ مجتمع ألف في حال وجود أي خطأ
-https://t.me/aliflang
-ـــــــــــــــــــــــــــــــــــــــــــــــــــــ
-فريق التطوير لا يمتلك أي ضمانات وغير مسؤول
-عن أي خطأ او خلل قد يحدث بسبب المحرر.
+        محرر نصي خاص بلغة ألف نـ5
+        يعمل على جميع المنصات "ويندوز - لينكس - ماك"
+        ـــــــــــــــــــــــــــــــــــــــــــــــــــــ
+        المحرر لا يزال تحت التطوير وقد يحتوي بعض الاخطاء
+        نرجو تبليغ مجتمع ألف في حال وجود أي خطأ
+        https://t.me/aliflang
+        ـــــــــــــــــــــــــــــــــــــــــــــــــــــ
+        فريق التطوير لا يمتلك أي ضمانات وغير مسؤول
+        عن أي خطأ او خلل قد يحدث بسبب المحرر.
 
-المحرر يخضع لرخصة برمجيات ألف
-يجب قراءة الرخصة جيداً قبل البدأ بإستخدام المحرر
-                            )");
+        المحرر يخضع لرخصة برمجيات ألف
+        يجب قراءة الرخصة جيداً قبل البدأ بإستخدام المحرر
+                                    )"
+                          );
+
+    messageDialog.setStyleSheet("background: #03091A; color: white");
+
+    messageDialog.exec();
 }
 
 /* ----------------------------------- Other Functions ----------------------------------- */

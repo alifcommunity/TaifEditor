@@ -3,7 +3,6 @@
 #include "TEditor.h"
 #include "TMenu.h"
 #include "TSettings.h"
-#include "TConsole.h"
 #include "TSearchPanel.h"
 #include "ProcessWorker.h"
 
@@ -76,17 +75,17 @@ private:
     QFileSystemModel *fileSystemModel{};
 
 
-    QSplitter *editorSplitter;
+    QSplitter *editorSplitter{};
     // TConsole *console;
-    QTabWidget *consoleTabWidget;
+    QTabWidget *consoleTabWidget{};
 
     // TConsole *cmdConsole;
     // TConsole *alifConsole;
     ProcessWorker *worker{};
 
-    QLabel *cursorPositionLabel;
-    QLabel *encodingLabel;
-    QProcess *alifProcess;
-    QProcess *currentAlifProcess = nullptr;
-    SearchPanel *searchBar;
+    QLabel *cursorPositionLabel{};
+    QLabel *encodingLabel{};
+    QProcess *alifProcess{};
+    QProcess *currentAlifProcess{};
+    SearchPanel *searchBar{};
 };
