@@ -20,7 +20,7 @@ bool SyntaxDefinition::load(const QString &filePath)
 
     QJsonParseError parseError;
     QJsonDocument doc = QJsonDocument::fromJson(jsonData, &parseError);
-    if (doc.isNull() || !doc.isObject()) {
+    if (doc.isNull() or !doc.isObject()) {
         qWarning() << "JSON غير صالح في ملف تعريف الصيغة:" << filePath;
         qWarning() << "خطأ التحليل:" << parseError.errorString() << "عند الموضع:" << parseError.offset;
         return false;
@@ -259,63 +259,63 @@ QTextCharFormat SyntaxDefinition::createFormatFromStyleNum(const QString &defSty
     // تعيين الألوان بناءً على defStyleNum
     if (defStyleNum == "dsNormal") {
         // النص العادي - لون افتراضي
-        format.setForeground(QColor("#cccccc"));
+        format.setForeground(QColor(248, 248, 255));
     }
-    else if (defStyleNum == "dsKeyword" || defStyleNum == "dsControlFlow") {
-        // الكلمات المفتاحية - أزرق
-        format.setForeground(QColor("#569cd6"));
-        format.setFontWeight(QFont::Bold);
+    else if (defStyleNum == "dsKeyword" or defStyleNum == "dsControlFlow") {
+        // الكلمات المفتاحية
+        format.setForeground(QColor(255, 100, 100));
     }
     else if (defStyleNum == "dsOperator") {
-        // العوامل - رمادي فاتح
-        format.setForeground(QColor("#d4d4d4"));
+        // المعاملات
+        format.setForeground(QColor(40, 240, 240));
     }
     else if (defStyleNum == "dsBuiltIn") {
-        // الدوال المدمجة - أصفر
-        format.setForeground(QColor("#dcdcaa"));
+        // الدوال المدمجة
+        format.setForeground(QColor(90, 180, 255));
     }
-    else if (defStyleNum == "dsVariable" || defStyleNum == "dsFunction") {
-        // المتغيرات والدوال - أزرق فاتح
-        format.setForeground(QColor("#9cdcfe"));
+    else if (defStyleNum == "dsFunction") {
+        // الدوال
+        format.setForeground(QColor(210, 160, 255));
     }
-    else if (defStyleNum == "dsString" || defStyleNum == "dsVerbatimString" || defStyleNum == "dsSpecialString") {
-        // النصوص - برتقالي
-        format.setForeground(QColor("#ce9178"));
+    else if (defStyleNum == "dsVariable") {
+        // كلمات مفتاحية خاصة
+        format.setForeground(QColor(255, 110, 255));
+    }
+    else if (defStyleNum == "dsString" or defStyleNum == "dsVerbatimString" or defStyleNum == "dsSpecialString") {
+        // النصوص
+        format.setForeground(QColor(80, 240, 80));
     }
     else if (defStyleNum == "dsComment") {
-        // التعليقات - أخضر
-        format.setForeground(QColor("#6a9955"));
-        format.setFontItalic(true);
+        // التعليقات
+        format.setForeground(QColor(140, 150, 190));
     }
-    else if (defStyleNum == "dsFloat" || defStyleNum == "dsDecVal" || defStyleNum == "dsBaseN") {
-        // الأرقام - أخضر فاتح
-        format.setForeground(QColor("#b5cea8"));
+    else if (defStyleNum == "dsFloat" or defStyleNum == "dsDecVal" or defStyleNum == "dsBaseN") {
+        // الأرقام
+        format.setForeground(QColor(255, 220, 80));
     }
-    else if (defStyleNum == "dsImport" || defStyleNum == "dsPreprocessor") {
-        // الاستيراد والمعالجات - وردي
-        format.setForeground(QColor("#c586c0"));
-    }
+    // else if (defStyleNum == "dsImport" or defStyleNum == "dsPreprocessor") {
+    //     // الاستيراد والمعالجات
+    //     format.setForeground(QColor("#c586c0"));
+    // }
     else if (defStyleNum == "dsError") {
-        // الأخطاء - أحمر
-        format.setForeground(QColor("#f44747"));
-        format.setFontUnderline(true);
+        // الأخطاء
+        format.setForeground(QColor(210, 15, 57));
     }
-    else if (defStyleNum == "dsAttribute") {
-        // السمات - أزرق
-        format.setForeground(QColor("#9cdcfe"));
-        format.setFontItalic(true);
-    }
-    else if (defStyleNum == "dsChar") {
-        // المحارف - برتقالي
-        format.setForeground(QColor("#ce9178"));
-    }
-    else if (defStyleNum == "dsSpecialChar") {
-        // المحارف الخاصة - وردي
-        format.setForeground(QColor("#d7ba7d"));
-    }
+    // else if (defStyleNum == "dsAttribute") {
+    //     // السمات
+    //     format.setForeground(QColor("#9cdcfe"));
+    // }
+    // else if (defStyleNum == "dsChar") {
+    //     // المحارف
+    //     format.setForeground(QColor("#ce9178"));
+    // }
+    // else if (defStyleNum == "dsSpecialChar") {
+    //     // المحارف الخاصة
+    //     format.setForeground(QColor("#d7ba7d"));
+    // }
     else {
         // نمط افتراضي
-        format.setForeground(QColor("#cccccc"));
+        format.setForeground(QColor(250, 250, 250));
         qDebug() << "نمط غير معروف:" << defStyleNum << "-> استخدام الافتراضي";
     }
 
@@ -329,7 +329,7 @@ bool SyntaxDefinition::parseRules(const QJsonArray &rulesArray)
         if (!value.isObject()) continue;
         QJsonObject ruleObject = value.toObject();
 
-        if (!ruleObject.contains("match") || !ruleObject["match"].isString()) continue;
+        if (!ruleObject.contains("match") or !ruleObject["match"].isString()) continue;
 
         HighlightingRule rule;
         rule.pattern = QRegularExpression(ruleObject["match"].toString());
@@ -352,7 +352,7 @@ bool SyntaxDefinition::parseRules(const QJsonArray &rulesArray)
             for (auto it = captures.constBegin(); it != captures.constEnd(); ++it) {
                 bool ok;
                 int captureIndex = it.key().toInt(&ok);
-                if (!ok || captureIndex <= 0) continue;
+                if (!ok or captureIndex <= 0) continue;
 
                 if (it.value().isObject()) {
                     QJsonObject captureStyleObj = it.value().toObject();

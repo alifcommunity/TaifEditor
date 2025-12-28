@@ -16,14 +16,15 @@ SearchPanel::SearchPanel(QWidget *parent) : QWidget(parent) {
     btnPrev = new QPushButton("السابق", this);
 
     // أزرار صغيرة
-    QString btnStyle = "QPushButton { background: transparent; border: none; color: #cccccc; padding: 4px; } QPushButton:hover { background: #3e3e42; }";
+    QString btnStyle = "QPushButton { background: transparent; border: none; color: #cccccc; padding: 4px; } QPushButton:hover { background: #334466; border-radius: 7px; }";
     btnNext->setStyleSheet(btnStyle);
     btnPrev->setStyleSheet(btnStyle);
 
     // زر الإغلاق (X)
-    btnClose = new QPushButton("✕", this);
-    btnClose->setStyleSheet("QPushButton { background: transparent; border: none; color: #f44747; font-weight: bold; } QPushButton:hover { background: #3e3e42; }");
-    btnClose->setFixedWidth(30);
+    btnClose = new QPushButton(this);
+    btnClose->setIcon(QIcon(":/icons/resources/close.svg"));
+    btnClose->setStyleSheet("QPushButton { background: transparent; border: none; color: white; } QPushButton:hover { background: #334466; border-radius: 7px; }");
+    btnClose->setFixedSize(35,35);
 
     checkCase = new QCheckBox("Aa", this); // Case Sensitive
     checkCase->setToolTip("مطبقة حالة الأحرف");
@@ -50,6 +51,7 @@ SearchPanel::SearchPanel(QWidget *parent) : QWidget(parent) {
 
     // البحث عند الضغط على Enter في مربع النص
     connect(searchInput, &QLineEdit::returnPressed, this, &SearchPanel::findNext);
+    connect(searchInput, &QLineEdit::textChanged, this, &SearchPanel::findText);
 }
 
 QString SearchPanel::getText() const { return searchInput->text(); }

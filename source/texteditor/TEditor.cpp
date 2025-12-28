@@ -138,7 +138,7 @@ TEditor::TEditor(QWidget* parent) {
     updateFontSize(savedSize);
 
     autoSaveTimer = new QTimer(this);
-    autoSaveTimer->setInterval(30000);
+    autoSaveTimer->setInterval(60000);
     connect(autoSaveTimer, &QTimer::timeout, this, &TEditor::performAutoSave);
 
     connect(this->document(), &QTextDocument::contentsChanged, this, &TEditor::startAutoSave);
@@ -233,18 +233,13 @@ void TEditor::toggleComment()
 
         if (shouldComment) {
             lineCursor.movePosition(QTextCursor::StartOfBlock);
-            lineCursor.insertText("# ");
+            lineCursor.insertText("#");
         } else {
             QString text = block.text();
-            if (text.startsWith("# ")) {
-                lineCursor.movePosition(QTextCursor::StartOfBlock);
-                lineCursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 2);
-                lineCursor.removeSelectedText();
-            } else if (text.startsWith("#")) {
-                lineCursor.movePosition(QTextCursor::StartOfBlock);
-                lineCursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
-                lineCursor.removeSelectedText();
-            }
+            int idx = text.indexOf("#");
+            lineCursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor, idx);
+            lineCursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, 1);
+            lineCursor.removeSelectedText();
         }
     }
 

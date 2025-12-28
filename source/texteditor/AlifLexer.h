@@ -5,8 +5,8 @@
 
 enum class TokenType {
     Keyword,
-    Keyword1,
-    Keyword2,
+    BiltinK,
+    SpecialK,
     Identifier,
     Number,
     Comment,
@@ -28,7 +28,7 @@ public:
 
 class Lexer {
 public:
-    QVector<Token> tokenize(const QString& text);
+    QVector<Token> tokenize(const QString& text, int oldPos);
 
 private:
     QVector<Token> tokens{};
@@ -37,6 +37,6 @@ private:
     int isFString = 0;
 
     bool isKeyword(const QString& word);
-    bool isKeyword1(const QString& word);
-    bool isKeyword2(const QString& word);
+    bool isBiltinK(const QString& word);
+    bool isSpecialK(const QString& word);
 };

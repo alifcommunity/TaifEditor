@@ -109,27 +109,27 @@ private slots:
     void flushPending();
 
 private:
-    QPlainTextEdit *m_output;
-    QLineEdit *m_input;
-    QProcess *m_process;
-    QTimer *m_flushTimer;
+    QPlainTextEdit *m_output{};
+    QLineEdit *m_input{};
+    QProcess *m_process{};
+    QTimer *m_flushTimer{};
 
-    QMutex m_pendingMutex;
-    QStringList m_pending; // staging lines
+    QMutex m_pendingMutex{};
+    QStringList m_pending{}; // staging lines
 
     // history
-    QVector<QString> m_history;
-    int m_historyIndex; // -1 means not browsing
+    QVector<QString> m_history{};
+    int m_historyIndex{}; // -1 means not browsing
 
     // autoscroll
-    bool m_autoscroll;
+    bool m_autoscroll{};
 
     // helpers
     void appendOutput(const QString &text); // needs to run in GUI thread
     QString ansiToHtmlFragment(const QString &chunk); // simple ansi -> html/text formatting
     bool eventFilter(QObject *obj, QEvent *ev) override;
 
-    QStringList m_buffer;          // تخزين جميع الأسطر
+    QStringList m_buffer{};          // تخزين جميع الأسطر
     int m_maxLines = 2000;         // آخر 2000 سطر
 };
 

@@ -18,6 +18,7 @@ public:
     void setFocusToInput();
 
 signals:
+    void findText();
     void findNext();
     void findPrevious();
     void closed();

@@ -26,11 +26,13 @@ WelcomeWindow::WelcomeWindow(QWidget *parent)
 
     QHBoxLayout *headerContent = new QHBoxLayout();
     QLabel *logoLabel = new QLabel();
-    logoLabel->setPixmap(QPixmap(":/icons/resources/TaifLogo.ico").scaled(70, 70, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    logoLabel->setPixmap(QPixmap(":/icons/resources/TaifLogo.ico").scaled(90, 90, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     QVBoxLayout *textVLayout = new QVBoxLayout();
     QLabel *titleLabel = new QLabel("أهلا في محرر طيف");
     QFont titleFont;
-    titleFont.setPointSize(10);
+    QStringList NotoKufiArabicFont = QFontDatabase::applicationFontFamilies(2);
+    titleFont.setFamily(NotoKufiArabicFont.at(0));
+    titleFont.setPixelSize(18);
     titleFont.setBold(true);
     titleLabel->setFont(titleFont);
     QLabel *subtitleLabel = new QLabel("طيف - محرر لغة ألف");
@@ -41,6 +43,7 @@ WelcomeWindow::WelcomeWindow(QWidget *parent)
     headerContent->addLayout(textVLayout);
     headerContent->addSpacing(10);
     headerContent->addLayout(textVLayout);
+    subtitleLabel->setFont(titleFont);
 
     QVBoxLayout *mainContentLayout = new QVBoxLayout();
     mainContentLayout->setSpacing(20);
@@ -114,7 +117,6 @@ WelcomeWindow::WelcomeWindow(QWidget *parent)
 
     QString styleSheet = R"(
         QWidget {
-            font-size: 10pt;
             background-color: #141520;
             color: #cccccc;
         }
@@ -141,7 +143,15 @@ WelcomeWindow::WelcomeWindow(QWidget *parent)
     this->setStyleSheet(styleSheet);
 
     this->setWindowTitle("Taif Editor");
-    this->resize(1024, 768);
+    QScreen* screen = QGuiApplication::primaryScreen();
+    QRect screenGeo = screen->availableGeometry();
+    int margin = 100;
+    int widthFixedNum = 6;
+    int x = screenGeo.right() - screenGeo.size().width() + margin * widthFixedNum / 2;
+    int y = screenGeo.top() + 30 + margin / 2; // 30 is top system bar height
+    int width = screenGeo.size().width() - margin * widthFixedNum;
+    int height = screenGeo.size().height() - margin;
+    this->setGeometry(x, y, width, height);
 
     connect(mainMenuBar, &TMenuBar::newRequested, this, &WelcomeWindow::handleNewFileRequest);
     connect(mainMenuBar, &TMenuBar::openFileRequested, this, &WelcomeWindow::handleOpenFileRequest);

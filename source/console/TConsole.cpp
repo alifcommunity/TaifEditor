@@ -22,12 +22,14 @@ TConsole::TConsole(QWidget *parent)
     // UI
     m_output->setReadOnly(true);
     m_output->setUndoRedoEnabled(false);
-    m_output->setWordWrapMode(QTextOption::NoWrap);
+    m_output->setWordWrapMode(QTextOption::WordWrap);
     // simple monospace font
     QFont f = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-    f.setPointSize(10);
+    f.setPixelSize(15);
     m_output->setFont(f);
     m_input->setFont(f);
+
+    setStyleSheet("QWidget {background-color: #03091A; color: #DEE8FF;}");
 
     auto *lay = new QVBoxLayout(this);
     lay->setContentsMargins(0,0,0,0);
@@ -37,7 +39,6 @@ TConsole::TConsole(QWidget *parent)
 
     setLayoutDirection(Qt::RightToLeft);
     m_input->setLayoutDirection(Qt::RightToLeft);
-    m_input->setAlignment(Qt::AlignRight);
 
     connect(m_process, &QProcess::readyReadStandardOutput, this, &TConsole::processStdout);
     connect(m_process, &QProcess::readyReadStandardError, this, &TConsole::processStderr);
@@ -90,13 +91,13 @@ void TConsole::stopCmd()
 void TConsole::clear()
 {
     m_output->clear();
+    m_pending.clear();
+    m_buffer.clear();
 }
 
 void TConsole::setConsoleRTL()
 {
     setLayoutDirection(Qt::RightToLeft);
-    m_input->setLayoutDirection(Qt::RightToLeft);
-    m_input->setAlignment(Qt::AlignRight);
 
     QTextOption opt = m_output->document()->defaultTextOption();
     opt.setTextDirection(Qt::RightToLeft);
@@ -112,6 +113,7 @@ void TConsole::appendPlainTextThreadSafe(const QString &text)
         if (s.endsWith('\r')) s.chop(1);
         m_pending.append(s);
     }
+    locker.unlock();
 }
 
 void TConsole::processStdout()

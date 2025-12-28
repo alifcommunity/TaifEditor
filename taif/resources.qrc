@@ -11,14 +11,14 @@
         <file>resources/fonts/NotoKufiArabic-Regular.ttf</file>
     </qresource>
     <qresource prefix="/icons">
-        <file>resources/close.png</file>
         <file>resources/TaifLogo.icns</file>
         <file>resources/TaifLogo.ico</file>
         <file>resources/TaifLogo.png</file>
         <file>resources/down-arrow.png</file>
         <file>resources/up-arrow.png</file>
-        <file>resources/side-bar.png</file>
-        <file>resources/run.png</file>
+        <file>resources/panel-right-open.svg</file>
+        <file>resources/close.svg</file>
+        <file>resources/run.svg</file>
     </qresource>
     <qresource prefix="/json">
         <file>resources/highlight-defination/alif.json</file>

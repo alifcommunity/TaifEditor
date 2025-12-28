@@ -3,8 +3,8 @@
 #include "TEditor.h"
 #include "TMenu.h"
 #include "TSettings.h"
-#include "TConsole.h"
 #include "TSearchPanel.h"
+#include "ProcessWorker.h"
 
 #include <QMainWindow>
 #include <QStatusBar>
@@ -52,6 +52,7 @@ private slots:
 
     void showFindBar();
     void hideFindBar();
+    void findText();
     void findNextText();
     void findPrevText();
 
@@ -74,16 +75,17 @@ private:
     QFileSystemModel *fileSystemModel{};
 
 
-    QSplitter *editorSplitter;
-    TConsole *console;
-    QTabWidget *consoleTabWidget;
+    QSplitter *editorSplitter{};
+    // TConsole *console;
+    QTabWidget *consoleTabWidget{};
 
-    TConsole *cmdConsole;
-    TConsole *alifConsole;
+    // TConsole *cmdConsole;
+    // TConsole *alifConsole;
+    ProcessWorker *worker{};
 
-    QLabel *cursorPositionLabel;
-    QLabel *encodingLabel;
-    QProcess *alifProcess;
-    QProcess *currentAlifProcess = nullptr;
-    SearchPanel *searchBar;
+    QLabel *cursorPositionLabel{};
+    QLabel *encodingLabel{};
+    QProcess *alifProcess{};
+    QProcess *currentAlifProcess{};
+    SearchPanel *searchBar{};
 };
