@@ -19,6 +19,8 @@
         <file>resources/panel-right-open.svg</file>
         <file>resources/close.svg</file>
         <file>resources/run.svg</file>
+        <file>resources/left-arrow.png</file>
+        <file>resources/right-arrow.png</file>
     </qresource>
     <qresource prefix="/json">
         <file>resources/highlight-defination/alif.json</file>

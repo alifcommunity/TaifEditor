@@ -90,6 +90,7 @@ WelcomeWindow::WelcomeWindow(QWidget *parent)
 
     showOnStartupCheck = new QCheckBox("إظهار صفحة الترحيب عند بدأ البرنامج");
     showOnStartupCheck->setChecked(true);
+    showOnStartupCheck->setDisabled(true);
 
     // ===================================================================
     // الجزء الثالث: التجميع النهائي والمحاذاة للمنتصف
@@ -118,10 +119,12 @@ WelcomeWindow::WelcomeWindow(QWidget *parent)
     QString styleSheet = R"(
         QWidget {
             background-color: #141520;
-            color: #cccccc;
+            color: #eeeeee;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
         }
         QLabel#titleLabel { color: #ffffff; }
-        QLabel { color: #909090; }
+        QLabel { color: #eeeeee; }
         QPushButton {
             min-width: 70px;
             background-color: #3a3d41; border: 1px solid #555555;
@@ -130,19 +133,19 @@ WelcomeWindow::WelcomeWindow(QWidget *parent)
         QPushButton:hover { background-color: #4f5357; }
         QPushButton:pressed { background-color: #2a2d31; }
         QListWidget, QLabel#sessionsBoxLabel {
-            background-color: #2d2d2d; border: 1px solid #555555;
-            border-radius: 4px; color: #909090;
+            background-color: #1e202e; border: 1px solid #555555;
+            border-radius: 8px; color: #909090;
         }
         TMenuBar{
             background-color: #1e202e;
             spacing: 5px; /* spacing between menu bar items */
         }
 
-        QListWidget::item:hover { background-color: #4f5357; }
+        QListWidget::item:hover { background-color: #2f2f3f; }
     )";
     this->setStyleSheet(styleSheet);
 
-    this->setWindowTitle("Taif Editor");
+    this->setWindowTitle("صفحة الترحيب - محرر طيف");
     QScreen* screen = QGuiApplication::primaryScreen();
     QRect screenGeo = screen->availableGeometry();
     int margin = 100;
