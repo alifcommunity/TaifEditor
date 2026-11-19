@@ -80,7 +80,7 @@ bool PosixPtyBackend::start(const StartRequest& request, QString* const errorMes
     const QByteArray workingDirectory = request.workingDirectory.toLocal8Bit();
 
     int masterFd = -1;
-    const winsize size = makeWindowSize(request.initialGrid);
+    winsize size = makeWindowSize(request.initialGrid);
     const pid_t child = ::forkpty(&masterFd, nullptr, nullptr, &size);
     if (child < 0) {
         if (errorMessage) {
