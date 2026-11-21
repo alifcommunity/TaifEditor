@@ -971,7 +971,16 @@ private:
         if (isAssignmentOperator(current().kind)) {
             const QString assignmentOperator = current().lexeme;
             consume();
-            const ParsedNode right = parseExpression();
+            ParsedNode right = parseExpression();
+            // Plain assignments may be chained: س = ص = 1. Each expression
+            // before the final value is an additional assignment target.
+            while (assignmentOperator == QStringLiteral("=")
+                   && at(TokenKind::Equal)) {
+                targets.append(right.ast);
+                targetSyntax.append(right.syntax);
+                consume();
+                right = parseExpression();
+            }
             targets.append(right.ast);
             targetSyntax.append(right.syntax);
             QVector<AstChildRole> roles;

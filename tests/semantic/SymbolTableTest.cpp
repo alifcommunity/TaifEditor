@@ -61,6 +61,7 @@ private slots:
     void stringPrefixesDoNotBecomeNameReferences();
     void radixLiteralsAndBitwiseAssignmentsAreSemanticallyValid();
     void assignmentsImportsAndBuiltinsBecomeVisibleSymbols();
+    void chainedAssignmentsBindEveryTarget();
     void importAliasesBindLocalNames();
     void globalAssignmentsUseModuleBindings();
     void wildcardImportsDoNotDeclareAnAsteriskSymbol();
@@ -287,6 +288,22 @@ void SymbolTableTest::assignmentsImportsAndBuiltinsBecomeVisibleSymbols() {
     QVERIFY(builtin != nullptr);
     QVERIFY(hasResolvedReference(*fixture.model, QStringLiteral("شيء"), imported->id));
     QVERIFY(hasResolvedReference(*fixture.model, QStringLiteral("اطبع"), builtin->id));
+}
+
+void SymbolTableTest::chainedAssignmentsBindEveryTarget() {
+    const SemanticFixture fixture = analyze(QStringLiteral(
+        "س = ص = 1\n"
+        "اطبع(س, ص)\n"));
+
+    QVERIFY(fixture.parse.lexicalDiagnostics.isEmpty());
+    QVERIFY(fixture.parse.parserDiagnostics.isEmpty());
+    QVERIFY(fixture.model->diagnostics().isEmpty());
+    const Symbol* first = findSymbol(*fixture.model, QStringLiteral("س"), SymbolKind::Local);
+    const Symbol* second = findSymbol(*fixture.model, QStringLiteral("ص"), SymbolKind::Local);
+    QVERIFY(first != nullptr);
+    QVERIFY(second != nullptr);
+    QVERIFY(hasResolvedReference(*fixture.model, QStringLiteral("س"), first->id));
+    QVERIFY(hasResolvedReference(*fixture.model, QStringLiteral("ص"), second->id));
 }
 
 void SymbolTableTest::importAliasesBindLocalNames() {

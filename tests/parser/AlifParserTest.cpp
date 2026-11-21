@@ -42,6 +42,7 @@ private slots:
     void parserNormalizesMissingEndOfFile();
     void declarationsAndSuitesCreateSemanticNodes();
     void commentsBeforeSuiteBodyAreIgnored();
+    void chainedAssignmentsPreserveAllTargets();
     void bareStarSeparatesKeywordOnlyParameters();
     void globalStatementParsesNameList();
     void exceptionClauseBindsCaughtError();
@@ -132,6 +133,21 @@ void TaifParserTest::commentsBeforeSuiteBodyAreIgnored() {
     QVERIFY(result.parserDiagnostics.isEmpty());
     QVERIFY(hasAstKind(*result.ast, AstNodeKind::FunctionDeclaration));
     QVERIFY(hasAstKind(*result.ast, AstNodeKind::PassStatement));
+}
+
+void TaifParserTest::chainedAssignmentsPreserveAllTargets() {
+    const ParseResult result = TaifParser().parse(QStringLiteral("س = ص = 1\n"));
+
+    QVERIFY(result.lexicalDiagnostics.isEmpty());
+    QVERIFY(result.parserDiagnostics.isEmpty());
+    QCOMPARE(result.ast->root().children.size(), qsizetype(1));
+    const AstNode& assignment = result.ast->node(result.ast->root().children.constFirst());
+    QCOMPARE(assignment.kind, AstNodeKind::AssignmentStatement);
+    QCOMPARE(assignment.assignmentTargetCount, qsizetype(2));
+    QCOMPARE(assignment.children.size(), qsizetype(3));
+    QCOMPARE(result.ast->node(assignment.children.at(0)).text, QStringLiteral("س"));
+    QCOMPARE(result.ast->node(assignment.children.at(1)).text, QStringLiteral("ص"));
+    QCOMPARE(result.ast->node(assignment.children.at(2)).text, QStringLiteral("1"));
 }
 
 void TaifParserTest::bareStarSeparatesKeywordOnlyParameters() {
