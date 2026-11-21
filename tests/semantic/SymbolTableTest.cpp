@@ -67,6 +67,7 @@ private slots:
     void forTargetBindsAndResolvesInTheLoopBody();
     void loopElseSuitesResolveLoopScopeNames();
     void contextManagerTargetBindsAndResolvesInBody();
+    void exceptionTargetBindsAndResolvesInBody();
     void tupleComprehensionVariablesResolveInTheirScope_data();
     void tupleComprehensionVariablesResolveInTheirScope();
     void comprehensionFiltersResolveBoundNames_data();
@@ -433,6 +434,24 @@ void SymbolTableTest::contextManagerTargetBindsAndResolvesInBody() {
     }
     QVERIFY(targetWrite);
     QVERIFY(bodyRead);
+}
+
+void SymbolTableTest::exceptionTargetBindsAndResolvesInBody() {
+    const QString source = QStringLiteral(
+        "حاول:\n\tمرر\n"
+        "خلل خطأ_استيراد ك خ:\n\tاطبع(خ)\n");
+    const SemanticFixture fixture = analyze(source);
+    QVERIFY(fixture.parse.lexicalDiagnostics.isEmpty());
+    QVERIFY(fixture.parse.parserDiagnostics.isEmpty());
+    QVERIFY(fixture.model->diagnostics().isEmpty());
+    const Symbol* exceptionType = findSymbol(*fixture.model, QStringLiteral("خطأ_استيراد"),
+                                             SymbolKind::Builtin);
+    const Symbol* target = findSymbol(*fixture.model, QStringLiteral("خ"), SymbolKind::Local);
+    QVERIFY(exceptionType != nullptr);
+    QVERIFY(target != nullptr);
+    QVERIFY(hasResolvedReference(*fixture.model, QStringLiteral("خطأ_استيراد"),
+                                 exceptionType->id));
+    QVERIFY(hasResolvedReference(*fixture.model, QStringLiteral("خ"), target->id));
 }
 
 void SymbolTableTest::tupleComprehensionVariablesResolveInTheirScope_data() {

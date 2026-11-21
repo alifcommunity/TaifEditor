@@ -198,6 +198,8 @@ enum class AstChildRole : quint8 {
     FormatExpression,
     FormatSpecifier,
     GlobalName,
+    ExceptionType,
+    ExceptionTarget,
     ContextExpression,
     ElseBody
 };

@@ -851,18 +851,28 @@ private:
             consume();
             QVector<AstNodeId> clauseChildren;
             QVector<SyntaxNodeId> clauseSyntax;
+            QVector<AstChildRole> clauseRoles;
             if (!at(TokenKind::Colon)) {
                 const ParsedNode errorType = parseExpression();
                 clauseChildren.append(errorType.ast);
                 clauseSyntax.append(errorType.syntax);
+                clauseRoles.append(AstChildRole::ExceptionType);
+                if (consumeIf(TokenKind::KwAs)) {
+                    const ParsedNode target = parseBindingTarget();
+                    clauseChildren.append(target.ast);
+                    clauseSyntax.append(target.syntax);
+                    clauseRoles.append(AstChildRole::ExceptionTarget);
+                }
             }
             const ParsedNode exceptSuite = parseSuite();
             clauseChildren.append(exceptSuite.ast);
             clauseSyntax.append(exceptSuite.syntax);
+            clauseRoles.append(AstChildRole::Body);
             const ParsedNode clause = makeParsed(AstNodeKind::ExceptClause,
                                                  SyntaxKind::ExceptClause,
                                                  clauseStart, m_mainPosition, {},
-                                                 clauseChildren, clauseSyntax);
+                                                 clauseChildren, clauseSyntax,
+                                                 clauseRoles);
             children.append(clause.ast);
             syntaxChildren.append(clause.syntax);
         }

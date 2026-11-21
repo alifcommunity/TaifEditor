@@ -42,6 +42,7 @@ private slots:
     void parserNormalizesMissingEndOfFile();
     void declarationsAndSuitesCreateSemanticNodes();
     void globalStatementParsesNameList();
+    void exceptionClauseBindsCaughtError();
     void decoratorsPrefixDeclarationsWithoutDiagnostics();
     void forHeaderTreatsInAsAStructuralDelimiter();
     void loopElseClauseParses_data();
@@ -138,6 +139,29 @@ void TaifParserTest::globalStatementParsesNameList() {
     QCOMPARE(result.ast->node(statement->children.at(1)).text, QStringLiteral("آخر"));
     QCOMPARE(result.syntaxTree->nodes().at(statement->syntaxNode).kind,
              SyntaxKind::GlobalStatement);
+}
+
+void TaifParserTest::exceptionClauseBindsCaughtError() {
+    const ParseResult result = TaifParser().parse(QStringLiteral(
+        "حاول:\n\tمرر\n"
+        "خلل خطأ_استيراد ك خ:\n\tمرر\n"));
+
+    QVERIFY(result.lexicalDiagnostics.isEmpty());
+    QVERIFY(result.parserDiagnostics.isEmpty());
+    const AstNode* clause = nullptr;
+    for (const AstNode& node : result.ast->nodes()) {
+        if (node.kind == AstNodeKind::ExceptClause) {
+            clause = &node;
+            break;
+        }
+    }
+    QVERIFY(clause != nullptr);
+    const AstNodeId type = childWithRole(*clause, AstChildRole::ExceptionType);
+    const AstNodeId target = childWithRole(*clause, AstChildRole::ExceptionTarget);
+    QVERIFY(type != InvalidAstNodeId);
+    QVERIFY(target != InvalidAstNodeId);
+    QCOMPARE(result.ast->node(type).text, QStringLiteral("خطأ_استيراد"));
+    QCOMPARE(result.ast->node(target).text, QStringLiteral("خ"));
 }
 
 void TaifParserTest::decoratorsPrefixDeclarationsWithoutDiagnostics() {

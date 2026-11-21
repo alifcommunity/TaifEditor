@@ -185,7 +185,7 @@ private:
             QStringLiteral("اصل"), QStringLiteral("اجمع"), QStringLiteral("اقصى"),
             QStringLiteral("ادنى"), QStringLiteral("تعداد"), QStringLiteral("قرب"),
             QStringLiteral("اطلق"), QStringLiteral("مرتب"), QStringLiteral("حرف"),
-            QStringLiteral("طبق"), QStringLiteral("رمز"),
+            QStringLiteral("طبق"), QStringLiteral("رمز"), QStringLiteral("كائن"),
             QStringLiteral("اسماء_عامة"), QStringLiteral("اسماء_محلية"),
             QStringLiteral("تحقق_الكل"), QStringLiteral("ثمانيات"), QStringLiteral("اضف_صفة"),
             QStringLiteral("يملك_صفة"), QStringLiteral("احضر_صفة"), QStringLiteral("احذف_صفة"),
@@ -343,6 +343,9 @@ private:
             break;
         case AstNodeKind::WithStatement:
             indexWith(ast, scope);
+            break;
+        case AstNodeKind::ExceptClause:
+            indexExceptClause(ast, scope);
             break;
         case AstNodeKind::ComprehensionExpression:
             indexComprehension(ast, scope);
@@ -568,6 +571,17 @@ private:
         }
     }
 
+    void indexExceptClause(const AstNode& ast, const ScopeId scope) {
+        const AstNodeId target = firstChildWithRole(ast, AstChildRole::ExceptionTarget);
+        if (isValidNode(target)) {
+            declareTarget(target, scope, SymbolKind::Local);
+        }
+        const AstNodeId body = firstChildWithRole(ast, AstChildRole::Body);
+        if (isValidNode(body)) {
+            indexNode(body, scope);
+        }
+    }
+
     void indexComprehension(const AstNode& ast, const ScopeId parentScope) {
         const ScopeId scope = createOwnedScope(ScopeKind::Comprehension, parentScope, ast);
         if (m_indexedScopes.contains(ast.id)) {
@@ -737,6 +751,9 @@ private:
         case AstNodeKind::WithStatement:
             resolveWith(ast, scope);
             break;
+        case AstNodeKind::ExceptClause:
+            resolveExceptClause(ast, scope);
+            break;
         case AstNodeKind::ComprehensionExpression:
             resolveComprehension(ast, scope);
             break;
@@ -893,6 +910,21 @@ private:
         const AstNodeId body = firstChildWithRole(ast, AstChildRole::Body);
         if (isValidNode(context)) {
             resolveNode(context, scope, ReferenceKind::Read);
+        }
+        if (isValidNode(target)) {
+            resolveTarget(target, scope, ReferenceKind::Write);
+        }
+        if (isValidNode(body)) {
+            resolveNode(body, scope, ReferenceKind::Read);
+        }
+    }
+
+    void resolveExceptClause(const AstNode& ast, const ScopeId scope) {
+        const AstNodeId exceptionType = firstChildWithRole(ast, AstChildRole::ExceptionType);
+        const AstNodeId target = firstChildWithRole(ast, AstChildRole::ExceptionTarget);
+        const AstNodeId body = firstChildWithRole(ast, AstChildRole::Body);
+        if (isValidNode(exceptionType)) {
+            resolveNode(exceptionType, scope, ReferenceKind::Read);
         }
         if (isValidNode(target)) {
             resolveTarget(target, scope, ReferenceKind::Write);
