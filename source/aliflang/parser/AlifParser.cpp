@@ -657,6 +657,12 @@ private:
             if (consumeIf(TokenKind::DoubleStar)) {
                 prefix = QStringLiteral("**");
             } else if (consumeIf(TokenKind::Star)) {
+                // A bare '*' separates positional parameters from keyword-only
+                // parameters; unlike '*name', it is not itself a parameter.
+                if (at(TokenKind::Comma)) {
+                    consume();
+                    continue;
+                }
                 prefix = QStringLiteral("*");
             }
             const ParsedNode name = parseNameExpression();

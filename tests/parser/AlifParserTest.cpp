@@ -41,6 +41,7 @@ private slots:
     void emptySourceCreatesCompleteSnapshots();
     void parserNormalizesMissingEndOfFile();
     void declarationsAndSuitesCreateSemanticNodes();
+    void bareStarSeparatesKeywordOnlyParameters();
     void globalStatementParsesNameList();
     void exceptionClauseBindsCaughtError();
     void decoratorsPrefixDeclarationsWithoutDiagnostics();
@@ -118,6 +119,35 @@ void TaifParserTest::declarationsAndSuitesCreateSemanticNodes() {
     QVERIFY(hasAstKind(*result.ast, AstNodeKind::ClassDeclaration));
     QVERIFY(hasAstKind(*result.ast, AstNodeKind::Parameter));
     QVERIFY(hasAstKind(*result.ast, AstNodeKind::AssignmentStatement));
+}
+
+void TaifParserTest::bareStarSeparatesKeywordOnlyParameters() {
+    const ParseResult result = TaifParser().parse(QStringLiteral(
+        "دالة مثال(هذا, الاسم, المحمل, *, الاساس=عدم, حالة_المحمل=عدم, هل_حزمة=عدم):\n"
+        "\tمرر\n"));
+
+    QVERIFY(result.lexicalDiagnostics.isEmpty());
+    QVERIFY(result.parserDiagnostics.isEmpty());
+    const AstNode* function = nullptr;
+    for (const AstNode& node : result.ast->nodes()) {
+        if (node.kind == AstNodeKind::FunctionDeclaration) {
+            function = &node;
+            break;
+        }
+    }
+    QVERIFY(function != nullptr);
+    const AstNodeId parameterList = childWithRole(*function, AstChildRole::ParameterList);
+    QVERIFY(parameterList != InvalidAstNodeId);
+    const AstNode& parameters = result.ast->node(parameterList);
+    QCOMPARE(parameters.children.size(), qsizetype(6));
+    const QStringList expectedNames {
+        QStringLiteral("هذا"), QStringLiteral("الاسم"), QStringLiteral("المحمل"),
+        QStringLiteral("الاساس"), QStringLiteral("حالة_المحمل"), QStringLiteral("هل_حزمة")
+    };
+    for (qsizetype index = 0; index < expectedNames.size(); ++index) {
+        QCOMPARE(result.ast->node(parameters.children.at(index)).text,
+                 expectedNames.at(index));
+    }
 }
 
 void TaifParserTest::globalStatementParsesNameList() {
