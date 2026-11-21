@@ -51,6 +51,7 @@ private slots:
     void fromImportAcceptsWildcard_data();
     void fromImportAcceptsWildcard();
     void fromImportPreservesNamedImports();
+    void importAliasesPreserveBindings();
     void tupleComprehensionPreservesElementsAndTargets_data();
     void tupleComprehensionPreservesElementsAndTargets();
     void ordinaryTupleKeepsFlatElementsAndBinaryPrecedence();
@@ -304,6 +305,33 @@ void TaifParserTest::fromImportPreservesNamedImports() {
     }
     QCOMPARE(result.ast->node(statement.children.at(1)).text, QStringLiteral("س"));
     QCOMPARE(result.ast->node(statement.children.at(2)).text, QStringLiteral("ص"));
+}
+
+void TaifParserTest::importAliasesPreserveBindings() {
+    const ParseResult result = TaifParser().parse(
+        QStringLiteral("استورد الرياضيات ك ريض\n"
+                       "من الرياضيات استورد جيب ك _جب, تجيب ك _تجب\n"));
+    QVERIFY(result.lexicalDiagnostics.isEmpty());
+    QVERIFY(result.parserDiagnostics.isEmpty());
+    QCOMPARE(result.ast->root().children.size(), qsizetype(2));
+
+    const AstNode& moduleImport = result.ast->node(result.ast->root().children.at(0));
+    QCOMPARE(moduleImport.kind, AstNodeKind::ImportStatement);
+    QCOMPARE(moduleImport.children.size(), qsizetype(2));
+    QCOMPARE(moduleImport.childRoles.at(0), AstChildRole::ImportPath);
+    QCOMPARE(moduleImport.childRoles.at(1), AstChildRole::ImportAlias);
+    QCOMPARE(result.ast->node(moduleImport.children.at(1)).text, QStringLiteral("ريض"));
+
+    const AstNode& memberImport = result.ast->node(result.ast->root().children.at(1));
+    QCOMPARE(memberImport.kind, AstNodeKind::FromImportStatement);
+    QCOMPARE(memberImport.children.size(), qsizetype(5));
+    QCOMPARE(memberImport.childRoles.at(0), AstChildRole::ImportPath);
+    QCOMPARE(memberImport.childRoles.at(1), AstChildRole::ImportName);
+    QCOMPARE(memberImport.childRoles.at(2), AstChildRole::ImportAlias);
+    QCOMPARE(memberImport.childRoles.at(3), AstChildRole::ImportName);
+    QCOMPARE(memberImport.childRoles.at(4), AstChildRole::ImportAlias);
+    QCOMPARE(result.ast->node(memberImport.children.at(2)).text, QStringLiteral("_جب"));
+    QCOMPARE(result.ast->node(memberImport.children.at(4)).text, QStringLiteral("_تجب"));
 }
 
 void TaifParserTest::tupleComprehensionPreservesElementsAndTargets_data() {

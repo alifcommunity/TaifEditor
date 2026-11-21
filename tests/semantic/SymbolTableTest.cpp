@@ -61,6 +61,7 @@ private slots:
     void stringPrefixesDoNotBecomeNameReferences();
     void radixLiteralsAndBitwiseAssignmentsAreSemanticallyValid();
     void assignmentsImportsAndBuiltinsBecomeVisibleSymbols();
+    void importAliasesBindLocalNames();
     void globalAssignmentsUseModuleBindings();
     void wildcardImportsDoNotDeclareAnAsteriskSymbol();
     void forTargetBindsAndResolvesInTheLoopBody();
@@ -285,6 +286,31 @@ void SymbolTableTest::assignmentsImportsAndBuiltinsBecomeVisibleSymbols() {
     QVERIFY(builtin != nullptr);
     QVERIFY(hasResolvedReference(*fixture.model, QStringLiteral("شيء"), imported->id));
     QVERIFY(hasResolvedReference(*fixture.model, QStringLiteral("اطبع"), builtin->id));
+}
+
+void SymbolTableTest::importAliasesBindLocalNames() {
+    const SemanticFixture fixture = analyze(QStringLiteral(
+        "استورد الرياضيات ك ريض\n"
+        "من الرياضيات استورد جيب ك _جب, تجيب ك _تجب\n"
+        "اطبع(ريض, _جب, _تجب)\n"));
+    QVERIFY(fixture.parse.lexicalDiagnostics.isEmpty());
+    QVERIFY(fixture.parse.parserDiagnostics.isEmpty());
+    QVERIFY(fixture.model->diagnostics().isEmpty());
+
+    const Symbol* moduleAlias = findSymbol(*fixture.model, QStringLiteral("ريض"),
+                                            SymbolKind::ImportModule);
+    const Symbol* firstAlias = findSymbol(*fixture.model, QStringLiteral("_جب"),
+                                           SymbolKind::ImportMember);
+    const Symbol* secondAlias = findSymbol(*fixture.model, QStringLiteral("_تجب"),
+                                            SymbolKind::ImportMember);
+    QVERIFY(moduleAlias != nullptr);
+    QVERIFY(firstAlias != nullptr);
+    QVERIFY(secondAlias != nullptr);
+    QVERIFY(findSymbol(*fixture.model, QStringLiteral("جيب"), SymbolKind::ImportMember) == nullptr);
+    QVERIFY(findSymbol(*fixture.model, QStringLiteral("تجيب"), SymbolKind::ImportMember) == nullptr);
+    QVERIFY(hasResolvedReference(*fixture.model, QStringLiteral("ريض"), moduleAlias->id));
+    QVERIFY(hasResolvedReference(*fixture.model, QStringLiteral("_جب"), firstAlias->id));
+    QVERIFY(hasResolvedReference(*fixture.model, QStringLiteral("_تجب"), secondAlias->id));
 }
 
 void SymbolTableTest::globalAssignmentsUseModuleBindings() {

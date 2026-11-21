@@ -206,7 +206,7 @@ private:
             QStringLiteral("خطأ_فائض"), QStringLiteral("خطأ_منع_التبادل"),
             QStringLiteral("خطأ_مسافة_بادئة"), QStringLiteral("خطأ_مؤشر"),
             QStringLiteral("خطأ_مسافة_طويلة"), QStringLiteral("خطأ_مكتبة_غير_موجودة"),
-            QStringLiteral("خطأ_ترميز_نص"),
+            QStringLiteral("خطأ_ترميز_نص"), QStringLiteral("خطأ_غير_منتهي"),
         };
         for (const QString& builtin : builtins) {
             declare(scope, SymbolKind::Builtin, builtin, range, range,
@@ -471,14 +471,27 @@ private:
     }
 
     void indexFromImport(const AstNode& ast, const ScopeId scope) {
-        const QVector<AstNodeId> names = childrenWithRole(ast, AstChildRole::ImportName);
-        for (const AstNodeId nameId : names) {
+        for (qsizetype index = 1; index < ast.children.size(); ++index) {
+            if (roleAt(ast, index) != AstChildRole::ImportName
+                || !isValidNode(ast.children.at(index))) {
+                continue;
+            }
+            const AstNodeId nameId = ast.children.at(index);
             const AstNode& name = node(nameId);
             if (name.kind == AstNodeKind::ImportWildcard) {
                 // Exported names require module analysis; '*' itself is not a binding.
                 continue;
             }
-            declare(scope, SymbolKind::ImportMember, name.text, name.range,
+            QString declaredName = name.text;
+            SourceRange declaredRange = name.range;
+            if (index + 1 < ast.children.size()
+                && roleAt(ast, index + 1) == AstChildRole::ImportAlias
+                && isValidNode(ast.children.at(index + 1))) {
+                const AstNode& alias = node(ast.children.at(index + 1));
+                declaredName = alias.text;
+                declaredRange = alias.range;
+            }
+            declare(scope, SymbolKind::ImportMember, declaredName, declaredRange,
                     ast.range, ast.id, true);
         }
     }

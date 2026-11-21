@@ -543,12 +543,21 @@ private:
                 const ParsedNode imported = parseNameExpression();
                 children.append(imported.ast);
                 syntaxChildren.append(imported.syntax);
+                if (consumeIf(TokenKind::KwAs)) {
+                    const ParsedNode alias = parseNameExpression();
+                    children.append(alias.ast);
+                    syntaxChildren.append(alias.syntax);
+                }
             } while (consumeIf(TokenKind::Comma));
         }
 
         QVector<AstChildRole> roles;
-        roles.fill(AstChildRole::ImportName, children.size() - 1);
         roles.prepend(AstChildRole::ImportPath);
+        for (qsizetype index = 1; index < children.size(); ++index) {
+            const AstChildRole previousRole = roles.constLast();
+            roles.append(previousRole == AstChildRole::ImportName
+                             ? AstChildRole::ImportAlias : AstChildRole::ImportName);
+        }
         return makeParsed(AstNodeKind::FromImportStatement, SyntaxKind::FromImportStatement,
                           start, m_mainPosition, {}, children, syntaxChildren, roles);
     }
