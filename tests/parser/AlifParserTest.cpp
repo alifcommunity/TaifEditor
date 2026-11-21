@@ -41,6 +41,7 @@ private slots:
     void emptySourceCreatesCompleteSnapshots();
     void parserNormalizesMissingEndOfFile();
     void declarationsAndSuitesCreateSemanticNodes();
+    void commentsBeforeSuiteBodyAreIgnored();
     void bareStarSeparatesKeywordOnlyParameters();
     void globalStatementParsesNameList();
     void exceptionClauseBindsCaughtError();
@@ -119,6 +120,18 @@ void TaifParserTest::declarationsAndSuitesCreateSemanticNodes() {
     QVERIFY(hasAstKind(*result.ast, AstNodeKind::ClassDeclaration));
     QVERIFY(hasAstKind(*result.ast, AstNodeKind::Parameter));
     QVERIFY(hasAstKind(*result.ast, AstNodeKind::AssignmentStatement));
+}
+
+void TaifParserTest::commentsBeforeSuiteBodyAreIgnored() {
+    const ParseResult result = TaifParser().parse(QStringLiteral(
+        "دالة اسم():\n"
+        "    # تعليق\n"
+        "    مرر\n"));
+
+    QVERIFY(result.lexicalDiagnostics.isEmpty());
+    QVERIFY(result.parserDiagnostics.isEmpty());
+    QVERIFY(hasAstKind(*result.ast, AstNodeKind::FunctionDeclaration));
+    QVERIFY(hasAstKind(*result.ast, AstNodeKind::PassStatement));
 }
 
 void TaifParserTest::bareStarSeparatesKeywordOnlyParameters() {

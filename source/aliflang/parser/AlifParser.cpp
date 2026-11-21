@@ -915,6 +915,10 @@ private:
         QVector<AstNodeId> statements;
 
         if (consumeIf(TokenKind::Newline)) {
+            // Comment-only and blank lines are represented as additional
+            // newlines before the first indentation token. Skip them before
+            // requiring the suite's Indent marker.
+            skipStatementSeparators();
             expect(TokenKind::Indent, QStringLiteral("لبدأ مسافة بادئة للكتلة"),
                    &syntaxChildren);
             skipStatementSeparators();
