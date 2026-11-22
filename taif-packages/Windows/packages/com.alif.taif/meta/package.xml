@@ -2,8 +2,8 @@
 <Package>
     <DisplayName>Taif</DisplayName>
     <Description>Taif Editor for Alif language.</Description>
-    <Version>3.3.0</Version>
-    <ReleaseDate>2026-05-18</ReleaseDate>
+    <Version>3.4.0</Version>
+    <ReleaseDate>2026-12-07</ReleaseDate>
     <Licenses>
         <License name="Public License Agreement" file="license.txt" />
     </Licenses>

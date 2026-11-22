@@ -1,6 +1,6 @@
 Windows:
 	Deployment:
-		~:\Qt\6.`*.*`\\msvc2022_64\bin\windeployqt6.exe Taif.exe
+		~:\Qt\6.`*.*`\msvc2022_64\bin\windeployqt6.exe Taif.exe
 	Packaging:
 		~:\Qt\Tools\QtInstallerFramework\4.`*`\bin\binarycreator.exe --hybrid -c config/config.xml -p packages TaifInstaller-Win-X64
 
