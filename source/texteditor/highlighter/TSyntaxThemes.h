@@ -42,7 +42,7 @@ public:
         setFormat(formats, TokenType::String,       QColor(206, 145, 120));
         setFormat(formats, TokenType::MultiLineString, QColor(206, 145, 120));
         setFormat(formats, TokenType::FString,      QColor(206, 145, 120));
-        setFormat(formats, TokenType::Comment,      QColor(106, 153, 85), false, true);
+        setFormat(formats, TokenType::Comment,      QColor(106, 153, 85), false, false);
         setFormat(formats, TokenType::Number,       QColor(181, 206, 168));
         setFormat(formats, TokenType::Self,         QColor(86, 156, 214), false);
         setFormat(formats, TokenType::Operator,     QColor(212, 212, 212));
@@ -63,7 +63,7 @@ public:
         setFormat(formats, TokenType::String,       QColor(230, 219, 116));       // Yellow
         setFormat(formats, TokenType::MultiLineString, QColor(230, 219, 116));
         setFormat(formats, TokenType::FString,      QColor(230, 219, 116));
-        setFormat(formats, TokenType::Comment,      QColor(117, 113, 94), false, true); // Grey
+        setFormat(formats, TokenType::Comment,      QColor(117, 113, 94), false, false); // Grey
         setFormat(formats, TokenType::Number,       QColor(174, 129, 255));       // Purple
         setFormat(formats, TokenType::Self,         QColor(253, 151, 31), false); // Orange
         setFormat(formats, TokenType::Operator,     QColor(249, 38, 114));       // Pink
@@ -84,7 +84,7 @@ public:
         setFormat(formats, TokenType::String,       QColor(195, 232, 141));       // Green
         setFormat(formats, TokenType::MultiLineString, QColor(195, 232, 141));
         setFormat(formats, TokenType::FString,      QColor(195, 232, 141));
-        setFormat(formats, TokenType::Comment,      QColor(84, 110, 122), false, true); // Blue Grey
+        setFormat(formats, TokenType::Comment,      QColor(84, 110, 122), false, false); // Blue Grey
         setFormat(formats, TokenType::Number,       QColor(247, 140, 108));       // Orange
         setFormat(formats, TokenType::Self,         QColor(255, 83, 112), false); // Red
         setFormat(formats, TokenType::Operator,     QColor(137, 221, 255));       // Cyan
@@ -105,7 +105,7 @@ public:
         setFormat(formats, TokenType::String,       QColor(80, 240, 80));       // Green
         setFormat(formats, TokenType::MultiLineString, QColor(80, 240, 80));
         setFormat(formats, TokenType::FString,      QColor(80, 240, 80));
-        setFormat(formats, TokenType::Comment,      QColor(140, 150, 190), false, true); // Blue Grey
+        setFormat(formats, TokenType::Comment,      QColor(140, 150, 190), false, false); // Blue Grey
         setFormat(formats, TokenType::Number,       QColor(255, 220, 80));       // Orange
         setFormat(formats, TokenType::Self,         QColor(90, 180, 255), false); // Red
         setFormat(formats, TokenType::Operator,     QColor(40, 240, 240));       // Cyan

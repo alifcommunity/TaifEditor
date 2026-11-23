@@ -1,52 +1,87 @@
-#include "TFlatButton.h"
+#pragma once
+
+#include "EditorPreferences.h"
 #include "TSyntaxThemes.h"
 
-#include <QWidget>
-#include <QPushButton>
-#include <QVBoxLayout>
+#include <QCheckBox>
+#include <QCloseEvent>
+#include <QComboBox>
+#include <QFormLayout>
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QSettings>
-#include <QCloseEvent>
-#include <QStackedWidget>
-#include <QGroupBox>
-#include <QComboBox>
-#include <QSpinBox>
-#include <QFontDatabase>
 #include <QFormLayout>
 #include <QListWidget>
+#include <QPushButton>
+#include <QSpinBox>
+#include <QStackedWidget>
+#include <QVBoxLayout>
+#include <QWidget>
 
 class TSettings : public QWidget {
     Q_OBJECT
 public:
     explicit TSettings(QWidget* parent = nullptr);
 
-    QVector<std::shared_ptr<SyntaxTheme>> getAvailableThemes() const;
+    [[nodiscard]] QVector<std::shared_ptr<SyntaxTheme>> getAvailableThemes() const;
+    [[nodiscard]] QComboBox* getThemeCombo() const;
+    [[nodiscard]] EditorPreferences currentPreferences() const;
+    void beginEditing();
 
-    QComboBox *getThemeCombo() const;
-    void setThemes();
+signals:
+    void preferencesPreviewed(EditorPreferences preferences);
+    void preferencesApplied(EditorPreferences preferences);
 
 protected:
     void closeEvent(QCloseEvent* event) override;
 
-signals:
-    void fontSizeChanged(int size);
-    void fontTypeChanged(QString font);
-    void highlighterThemeChanged(int themeIdx);
+private slots:
+    void synchronizeDraftFromControls();
+    void applyDraft();
+    void cancelDraft();
+    void restorePageDefaults();
+    void markRecentFilesForClearing();
 
 
 private:
     void setupLayout();
     void setupStyling();
     void addSettingPage(const QString& name, const QString& description, const QString& iconPath);
-    void createAppearancePage(QVBoxLayout*);
+    void createAppearancePage(QVBoxLayout* layout);
+    void createEditorBehaviorPage(QVBoxLayout* layout);
+    void createIntelligencePage(QVBoxLayout* layout);
+    void createWorkspacePage(QVBoxLayout* layout);
+    void createActionBar(QVBoxLayout* layout);
+    void setControlsFromPreferences(const EditorPreferences& preferences);
+    void applyDraftPreview();
+    void setThemes();
 
     QStackedWidget* stackedWidget{};
-    QListWidget* sidebar;
+    QListWidget* sidebar{};
 
     QSpinBox* fontSpin{};
     QComboBox* fontCombo{};
     QComboBox* themeCombo{};
+    QSpinBox* tabWidthSpin{};
+    // QCheckBox* wordWrapCheck{}; // معلق حتى تصحيح مشكلة إلتفاف النص في المحررات من اليمين إلى اليسار
+    QCheckBox* lineNumbersCheck{};
+    QCheckBox* minimapCheck{};
+    QCheckBox* highlightCurrentLineCheck{};
+    QCheckBox* autoSaveCheck{};
+    QSpinBox* autoSaveSecondsSpin{};
+    QCheckBox* automaticCompletionCheck{};
+    QCheckBox* hoverInformationCheck{};
+    QSpinBox* hoverDelaySpin{};
+    QCheckBox* inlineDiagnosticsCheck{};
+    QSpinBox* recentFilesLimitSpin{};
+    QPushButton* clearRecentFilesButton{};
+    QPushButton* applyButton{};
+    QPushButton* cancelButton{};
+    QPushButton* resetButton{};
 
     QVector<std::shared_ptr<SyntaxTheme>> availableThemes{};
+    EditorPreferences baselinePreferences{};
+    EditorPreferences draftPreferences{};
+    bool clearRecentFilesOnApply = false;
+    bool synchronizingControls = false;
 };

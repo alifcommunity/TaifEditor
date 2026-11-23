@@ -1,111 +1,176 @@
 #include "TWelcomeWindow.h"
-#include "Taif.h"
-#include "TMenu.h"
-#include <QtWidgets>
+#include "TSessionEditorDialog.h"
+#include "TSessionManagerDialog.h"
+#include "TaifBootstrap.h"
 
+#include <QWidget>
+#include <QCheckBox>
+#include <QCloseEvent>
+#include <QDialog>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QFontDatabase>
+#include <QGuiApplication>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QListWidget>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QScreen>
+#include <QSettings>
+#include <QStackedLayout>
+#include <QVBoxLayout>
 
-WelcomeWindow::WelcomeWindow(QWidget *parent)
-    : QMainWindow(parent)
+#include <utility>
+
+constexpr int kSessionIdRole = Qt::UserRole;
+
+QListWidgetItem* addSessionItem(QListWidget* const list, const SavedSession& session)
 {
+    const QString fileCount = QString::number(session.filePaths.size());
+    auto* const item = new QListWidgetItem(
+        QStringLiteral("%1\n%2 ملف").arg(session.displayName, fileCount), list);
+    item->setData(kSessionIdRole, session.id);
+    item->setToolTip(session.filePaths.isEmpty()
+        ? QStringLiteral("جلسة فارغة")
+        : session.filePaths.join(u'\n'));
+    return item;
+}
 
+const SavedSession* sessionForItem(const QVector<SavedSession>& sessions,
+                                   const QListWidgetItem* const item)
+{
+    if (item == nullptr) {
+        return nullptr;
+    }
+    const QString id = item->data(kSessionIdRole).toString();
+    for (const SavedSession& session : sessions) {
+        if (session.id == id) {
+            return &session;
+        }
+    }
+    return nullptr;
+}
+
+WelcomeWindow::WelcomeWindow(QWidget* const parent,
+                             SessionStore::SettingsScope sessionScope)
+    : QMainWindow(parent)
+    , sessionStore(std::move(sessionScope))
+{
     setAttribute(Qt::WA_DeleteOnClose);
 
     setupStyle();
 
-    QWidget *centralWidget = new QWidget(this);
-    QVBoxLayout *mainVLayout = new QVBoxLayout(centralWidget);
-    this->setCentralWidget(centralWidget);
+    QWidget* const centralWidget = new QWidget(this);
+    QVBoxLayout* const mainLayout = new QVBoxLayout(centralWidget);
+    setCentralWidget(centralWidget);
 
-    QHBoxLayout *headerContent = new QHBoxLayout();
-    QLabel *logoLabel = new QLabel();
-    logoLabel->setPixmap(QPixmap(":/icons/resources/TaifLogo.ico").scaled(90, 90, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    QVBoxLayout *textVLayout = new QVBoxLayout();
-    QLabel *titleLabel = new QLabel("أهلا في محرر طيف");
-    titleLabel->setObjectName("titleLabel");
-    QFont titleFont;
-    QStringList NotoKufiArabicFont = QFontDatabase::applicationFontFamilies(2);
-    titleFont.setFamily(NotoKufiArabicFont.at(0));
+    QVBoxLayout* const headerContent = new QVBoxLayout();
+    QLabel* const logoLabel = new QLabel(centralWidget);
+    logoLabel->setAlignment(Qt::AlignCenter);
+    QPixmap logo(QStringLiteral(":/icons/resources/TaifLogo.ico"));
+    logoLabel->setPixmap(logo.scaled(
+        153, 153,
+        Qt::KeepAspectRatio,
+        Qt::SmoothTransformation
+        ));
+    QVBoxLayout* const textLayout = new QVBoxLayout();
+    auto* const titleLabel = new QLabel(QStringLiteral("طــيــف\nمحرر لغة البرمجة العربية ألف نـ5"), centralWidget);
+    titleLabel->setObjectName(QStringLiteral("titleLabel"));
+    titleLabel->setAlignment(Qt::AlignCenter);
+
+    // ضبط الخط هنا لا يملك تأثير على نافذة الترحيب
+    // وذلك لأن الخط والحجم تم ضبطه في setStyleSheet
+    // ومع ذلك سيتم الإحتفاظ بهذا الضبط في حال الإستخدام لاحقا
+    // او في حال فشل ضبط الخط باستخدام التنسيق styleSheet
+    QFont titleFont = titleLabel->font();
+    const QString displayArabicFamily = TaifBootstrap::notoKufiFontFamily();
+    if (!displayArabicFamily.isEmpty()) {
+        titleFont.setFamily(displayArabicFamily);
+    }
     titleFont.setPixelSize(18);
     titleFont.setBold(true);
     titleLabel->setFont(titleFont);
-    QLabel *subtitleLabel = new QLabel("طيف - محرر لغة ألف");
-    subtitleLabel->setObjectName("titleLabel");
-    textVLayout->addWidget(titleLabel);
-    textVLayout->addWidget(subtitleLabel);
-    headerContent->addWidget(logoLabel);
-    headerContent->addSpacing(15);
-    headerContent->addSpacing(10);
-    headerContent->addLayout(textVLayout);
-    subtitleLabel->setFont(titleFont);
 
-    QVBoxLayout *mainContentLayout = new QVBoxLayout();
+    textLayout->addWidget(titleLabel);
+    headerContent->addWidget(logoLabel);
+    headerContent->addSpacing(12);
+    headerContent->addLayout(textLayout);
+
+    QVBoxLayout* const mainContentLayout = new QVBoxLayout();
     mainContentLayout->setSpacing(20);
-    QSettings settings("Alif", "Taif");
-    QStringList recentFiles = settings.value("RecentFiles").toStringList();
-    QHBoxLayout *filesGroup = new QHBoxLayout();
-    QVBoxLayout *filesButtons = new QVBoxLayout();
-    newFileButton = new QPushButton("ملف جديد");
-    newFileButton->setObjectName("primaryButton");
-    openFileButton = new QPushButton("فتح الملف");
-    openFolderButton = new QPushButton("فتح المجلد");
+
+    QHBoxLayout* const filesGroup = new QHBoxLayout();
+    QVBoxLayout* const filesButtons = new QVBoxLayout();
+    newFileButton = new QPushButton(QStringLiteral("ملف جديد"), centralWidget);
+    newFileButton->setObjectName(QStringLiteral("primaryButton"));
+    openFileButton = new QPushButton(QStringLiteral("فتح ملف"), centralWidget);
+    openFolderButton = new QPushButton(QStringLiteral("فتح مجلد"), centralWidget);
     filesButtons->addWidget(newFileButton);
     filesButtons->addWidget(openFileButton);
     filesButtons->addWidget(openFolderButton);
     filesButtons->addStretch();
+
+    // عند الوراثة من الأب, يحصل خطأ في الشريط التمرير الجانبي حيث تختفي الخلفيات وتصبح شفافة
     recentFilesList = new QListWidget();
+    recentFilesList->setObjectName(QStringLiteral("RecentFilesList"));
+    QSettings settings(QStringLiteral("Alif"), QStringLiteral("Taif"));
+    QStringList recentFiles = settings.value(QStringLiteral("RecentFiles")).toStringList();
     recentFilesList->addItems(recentFiles);
-    recentFilesList->setMinimumWidth(450);
     recentFilesList->setWordWrap(true);
+    recentFilesList->setFixedWidth(450);
     filesGroup->addLayout(filesButtons);
     filesGroup->addWidget(recentFilesList);
 
-    QHBoxLayout *sessionsGroup = new QHBoxLayout();
-    QVBoxLayout *sessionsButtons = new QVBoxLayout();
-    newSessionButton = new QPushButton("جلسة جديدة");
-    manageSessionsButton = new QPushButton("إدارة الجلسات");
+    QHBoxLayout* const sessionsGroup = new QHBoxLayout();
+    QVBoxLayout* const sessionsButtons = new QVBoxLayout();
+    newSessionButton = new QPushButton(QStringLiteral("جلسة جديدة"), centralWidget);
+    newSessionButton->setObjectName(QStringLiteral("NewSessionButton"));
+    manageSessionsButton = new QPushButton(QStringLiteral("إدارة الجلسات"), centralWidget);
+    manageSessionsButton->setObjectName(QStringLiteral("ManageSessionsButton"));
     sessionsButtons->addWidget(newSessionButton);
     sessionsButtons->addWidget(manageSessionsButton);
     sessionsButtons->addStretch();
-    QLabel *noSessionsLabel = new QLabel("لا يوجد جلسات محفوظة");
-    noSessionsLabel->setAlignment(Qt::AlignCenter);
-    noSessionsLabel->setMinimumSize(450, 100);
-    noSessionsLabel->setObjectName("sessionsBoxLabel");
-    sessionsGroup->addLayout(sessionsButtons);
-    sessionsGroup->addWidget(noSessionsLabel);
 
-    int uniformWidth = 450;
-    recentFilesList->setFixedWidth(uniformWidth);
-    noSessionsLabel->setFixedWidth(uniformWidth);
+    QWidget* const sessionsContent = new QWidget(centralWidget);
+    sessionsContent->setFixedWidth(450);
+    sessionsContentLayout = new QStackedLayout(sessionsContent);
+    sessionsContentLayout->setContentsMargins(0, 0, 0, 0);
+    savedSessionsList = new QListWidget(sessionsContent);
+    savedSessionsList->setObjectName(QStringLiteral("SavedSessionsList"));
+    savedSessionsList->setWordWrap(true);
+    noSessionsLabel = new QLabel(QStringLiteral("لا توجد جلسات محفوظة"), sessionsContent);
+    noSessionsLabel->setObjectName(QStringLiteral("sessionsBoxLabel"));
+    noSessionsLabel->setAlignment(Qt::AlignCenter);
+    noSessionsLabel->setMinimumHeight(100);
+    sessionsContentLayout->addWidget(savedSessionsList);
+    sessionsContentLayout->addWidget(noSessionsLabel);
+
+    sessionsGroup->addLayout(sessionsButtons);
+    sessionsGroup->addWidget(sessionsContent);
 
     mainContentLayout->addLayout(filesGroup);
     mainContentLayout->addLayout(sessionsGroup);
 
-    showOnStartupCheck = new QCheckBox("إظهار صفحة الترحيب عند بدأ البرنامج");
-    showOnStartupCheck->setChecked(true);
-    showOnStartupCheck->setDisabled(true);
-
-
-    mainVLayout->addStretch(1);
-    QHBoxLayout *headerCenteringLayout = new QHBoxLayout();
+    mainLayout->addStretch(1);
+    QVBoxLayout* const headerCenteringLayout = new QVBoxLayout();
     headerCenteringLayout->addStretch();
     headerCenteringLayout->addLayout(headerContent);
     headerCenteringLayout->addStretch();
-    mainVLayout->addLayout(headerCenteringLayout);
-    mainVLayout->addSpacing(30);
-    QHBoxLayout *contentCenteringLayout = new QHBoxLayout();
-    contentCenteringLayout->addStretch();
-    contentCenteringLayout->addLayout(mainContentLayout);
-    contentCenteringLayout->addStretch();
-    mainVLayout->addLayout(contentCenteringLayout);
-    mainVLayout->addSpacing(20);
-    // mainVLayout->addWidget(showOnStartupCheck, 0, Qt::AlignCenter);
-    mainVLayout->addStretch(1);
+    mainLayout->addLayout(headerCenteringLayout);
+    mainLayout->addSpacing(70);
+    QHBoxLayout* const contentCentering = new QHBoxLayout();
+    contentCentering->addStretch();
+    contentCentering->addLayout(mainContentLayout);
+    contentCentering->addStretch();
+    mainLayout->addLayout(contentCentering);
+    mainLayout->addStretch(3);
 
-    this->setWindowTitle("صفحة الترحيب - محرر طيف");
+    setWindowTitle(QStringLiteral("صفحة الترحيب — محرر طيف"));
     QScreen* screen = QGuiApplication::primaryScreen();
     QRect screenGeo = screen->availableGeometry();
-    int margin = 100;
-    int widthFixedNum = 6;
+    int margin = 90;
+    int widthFixedNum = 5;
     int x = screenGeo.right() - screenGeo.size().width() + margin * widthFixedNum / 2;
     int y = screenGeo.top() + 30 + margin / 2; // 30 is top system bar height
     int width = screenGeo.size().width() - margin * widthFixedNum;
@@ -116,7 +181,14 @@ WelcomeWindow::WelcomeWindow(QWidget *parent)
     connect(newFileButton, &QPushButton::clicked, this, &WelcomeWindow::handleNewFileRequest);
     connect(openFileButton, &QPushButton::clicked, this, &WelcomeWindow::handleOpenFileRequest);
     connect(openFolderButton, &QPushButton::clicked, this, &WelcomeWindow::handleOpenFolderRequest);
-    connect(recentFilesList, &QListWidget::itemDoubleClicked, this, &WelcomeWindow::onRecentFileClicked);
+    connect(recentFilesList, &QListWidget::itemDoubleClicked,
+            this, &WelcomeWindow::onRecentFileClicked);
+    connect(newSessionButton, &QPushButton::clicked, this, &WelcomeWindow::createSession);
+    connect(manageSessionsButton, &QPushButton::clicked, this, &WelcomeWindow::manageSessions);
+    connect(savedSessionsList, &QListWidget::itemDoubleClicked,
+            this, &WelcomeWindow::openSelectedSession);
+
+    refreshSessions();
 }
 
 void WelcomeWindow::setupStyle() {
@@ -126,13 +198,11 @@ void WelcomeWindow::setupStyle() {
     // Accent:     #3b82f6 (Electric Blue)
     // Text:       #f1f5f9 (Off White)
     // Muted:      #94a3b8 (Slate Grey)
-
-    QString styleSheet = R"(
-        /* Main Window Container */
+    setStyleSheet(QStringLiteral(R"(
         QWidget {
             background-color: #0f172a;
             color: #f1f5f9;
-            font-family: "Tajawal", Noto Kufi Arabic, Roboto, Helvetica, Arial, sans-serif;
+            font-family: "Tajawal", "Noto Kufi Arabic", Roboto, Helvetica, Arial;
         }
 
         /* very important for QScrollBar background */
@@ -212,65 +282,108 @@ void WelcomeWindow::setupStyle() {
             color: #ffffff;
             border: 1px solid #60a5fa;
         }
-    )";
-
-    this->setStyleSheet(styleSheet);
+    )"));
 }
 
-
-void WelcomeWindow::onRecentFileClicked(QListWidgetItem *item)
+void WelcomeWindow::refreshSessions()
 {
-    QString filePath = item->text();
-    QFileInfo fileInfo(filePath);
+    const QVector<SavedSession> sessions = sessionStore.loadAll();
+    savedSessionsList->clear();
+    for (const SavedSession& session : sessions) {
+        addSessionItem(savedSessionsList, session);
+    }
+    sessionsContentLayout->setCurrentWidget(sessions.isEmpty()
+        ? static_cast<QWidget*>(noSessionsLabel)
+        : static_cast<QWidget*>(savedSessionsList));
+}
 
+bool WelcomeWindow::editSession(SavedSession session, const bool isNew)
+{
+    SessionEditorDialog dialog(this);
+    dialog.setSession(session);
+    if (dialog.exec() != QDialog::Accepted) {
+        return false;
+    }
+
+    QString errorMessage;
+    const bool saved = isNew
+        ? sessionStore.create(dialog.session(), &errorMessage)
+        : sessionStore.update(dialog.session(), &errorMessage);
+    if (!saved) {
+        QMessageBox::warning(this, QStringLiteral("تعذر حفظ الجلسة"), errorMessage);
+        return false;
+    }
+    refreshSessions();
+    return true;
+}
+
+void WelcomeWindow::createSession() {
+    editSession({}, true);
+}
+
+void WelcomeWindow::manageSessions() {
+    SessionManagerDialog dialog(sessionStore, this);
+    connect(&dialog, &SessionManagerDialog::sessionsChanged,
+            this, &WelcomeWindow::refreshSessions);
+    dialog.exec();
+    refreshSessions();
+    if (const auto session = dialog.sessionToOpen(); session.has_value()) {
+        openSession(*session);
+    }
+}
+
+void WelcomeWindow::openSelectedSession(QListWidgetItem* const item)
+{
+    const QVector<SavedSession> sessions = sessionStore.loadAll();
+    if (const SavedSession* const selected = sessionForItem(sessions, item)) {
+        openSession(*selected);
+    }
+}
+
+void WelcomeWindow::openSession(const SavedSession& session) {
+    emit sessionOpenRequested(session);
+}
+
+void WelcomeWindow::onRecentFileClicked(QListWidgetItem* const item)
+{
+    const QString filePath = item->text();
+    const QFileInfo fileInfo(filePath);
     if (!fileInfo.exists() || !fileInfo.isFile()) {
-        QMessageBox::warning(this, "ملف غير موجود",
-                             "تعذر العثور على الملف:\n" + filePath + "\n\nربما تم نقله أو حذفه.");
-        // delete item;
+        QMessageBox::warning(this, QStringLiteral("ملف غير موجود"),
+                             QStringLiteral("تعذر العثور على الملف:\n%1\n\nربما تم نقله أو حذفه.")
+                                 .arg(filePath));
         return;
     }
 
-    Taif *editor = new Taif(filePath);
-    editor->show();
-    this->close();
+    emit fileOpenRequested(filePath);
 }
 
-void WelcomeWindow::handleNewFileRequest()
-{
-    Taif *editor = new Taif();
-    editor->show();
-    this->close();
+void WelcomeWindow::handleNewFileRequest() {
+    emit newDocumentRequested();
 }
 
-void WelcomeWindow::handleOpenFileRequest()
-{
-    QString filePath = QFileDialog::getOpenFileName(this, "Open File");
-
-    if (!filePath.isEmpty()) {
-        Taif *editor = new Taif(filePath);
-        editor->show();
-        this->close();
+void WelcomeWindow::handleOpenFileRequest() {
+    const QString filePath = QFileDialog::getOpenFileName(
+        this, QStringLiteral("فتح ملف"), {},
+        QStringLiteral("ملف ألف (*.alif *.aliflib);;كل الملفات (*)"));
+    if (filePath.isEmpty()) {
+        return;
     }
+
+    emit fileOpenRequested(filePath);
 }
 
-void WelcomeWindow::handleOpenFolderRequest()
-{
-    QString folderPath = QFileDialog::getExistingDirectory(this, "Open Folder");
-
-    if (!folderPath.isEmpty()) {
-        Taif *editor = new Taif();
-        editor->loadFolder(folderPath);
-
-        editor->show();
-        this->close();
+void WelcomeWindow::handleOpenFolderRequest() {
+    const QString folderPath = QFileDialog::getExistingDirectory(this, QStringLiteral("فتح مجلد"));
+    if (folderPath.isEmpty()) {
+        return;
     }
+
+    emit folderOpenRequested(folderPath);
 }
 
-void WelcomeWindow::closeEvent(QCloseEvent *event)
-{
+void WelcomeWindow::closeEvent(QCloseEvent* const event) {
     event->accept();
 }
 
-WelcomeWindow::~WelcomeWindow()
-{
-}
+WelcomeWindow::~WelcomeWindow() = default;

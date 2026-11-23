@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="55" height="55" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient_1" gradientUnits="userSpaceOnUse" x1="16" y1="0" x2="16" y2="32">
+      <stop offset="0" stop-color="#FF0000" />
+      <stop offset="1" stop-color="#FF0055" />
+    </linearGradient>
+    <filter color-interpolation-filters="sRGB" x="-30" y="-30" width="32" height="32" id="filter_2">
+      <feFlood flood-opacity="0" result="BackgroundImageFix_1" />
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix_1" result="Shape_2" />
+      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" in="SourceAlpha" result="HardAlpha_3" />
+      <feOffset dx="0" dy="0" />
+      <feGaussianBlur stdDeviation="3" />
+      <feComposite operator="arithmetic" k2="-1" k3="1" in2="HardAlpha_3" />
+      <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.698 0" />
+      <feBlend mode="normal" in2="Shape_2" result="InnerShadow_4" />
+    </filter>
+  </defs>
+  <g>
+    <rect width="55" height="55" />
+    <path d="M6 0L26 0C29.3142 0 32 2.68584 32 6L32 26C32 29.3142 29.3142 32 26 32L6 32C2.68584 32 0 29.3142 0 26L0 6C0 2.68584 2.68584 0 6 0L6 0Z" fill="url(#gradient_1)" filter="url(#filter_2)" transform="translate(12 12)" />
+  </g>
+</svg>

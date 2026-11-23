@@ -124,10 +124,10 @@ TToken NormalState::readToken(const QString& text, int& pos, const LanguageDefin
     if (ch.isDigit()) {
         int start = pos;
         if (ch == '0' && pos + 1 < text.length() && text.mid(pos, 2).toLower() == "0x") {
-            auto m = langDef.hexPattern.match(text, start, QRegularExpression::NormalMatch, QRegularExpression::AnchoredMatchOption);
+            auto m = langDef.hexPattern.match(text, start, QRegularExpression::NormalMatch, QRegularExpression::AnchorAtOffsetMatchOption);
             if (m.hasMatch()) { pos += m.capturedLength(); return TToken(TokenType::Number, start, m.capturedLength()); }
         }
-        auto m = langDef.numberPattern.match(text, start, QRegularExpression::NormalMatch, QRegularExpression::AnchoredMatchOption);
+        auto m = langDef.numberPattern.match(text, start, QRegularExpression::NormalMatch, QRegularExpression::AnchorAtOffsetMatchOption);
         if (m.hasMatch()) { pos += m.capturedLength(); return TToken(TokenType::Number, start, m.capturedLength()); }
         pos++; return TToken(TokenType::Number, start, 1);
     }

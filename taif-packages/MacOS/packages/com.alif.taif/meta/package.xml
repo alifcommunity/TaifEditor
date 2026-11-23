@@ -2,19 +2,27 @@
 <Package>
     <DisplayName>Taif</DisplayName>
     <Description>Taif Editor for Alif language.</Description>
-    <Version>3.3.0</Version>
-    <ReleaseDate>2026-05-18</ReleaseDate>
+    <Version>3.4.0</Version>
+    <ReleaseDate>2026-12-07</ReleaseDate>
     <Licenses>
         <License name="Public License Agreement" file="license.txt" />
     </Licenses>
     <Default>true</Default>
     <RequiresAdminRights>true</RequiresAdminRights>
     <Operations>
+        <!-- Add Taif to PATH in the user's shell config files.
+             macOS has shipped with both bash (default until Catalina) and zsh
+             (default since Catalina), so we target both ~/.bash_profile and
+             ~/.zshrc. The grep guard prevents duplicate entries on reinstall. -->
         <Operation name="Execute">
             <Argument>bash</Argument>
             <Argument>-c</Argument>
-            <Argument>echo export "PATH=@TargetDir@/alif:$PATH" >> ~/.zshrc</Argument>
-            <Argument>source ~/.zshrc</Argument>
+            <Argument>if ! grep -qF "@TargetDir@/alif" ~/.bash_profile 2>/dev/null; then echo 'export PATH=@TargetDir@/alif:$PATH' >> ~/.bash_profile; fi</Argument>
+        </Operation>
+        <Operation name="Execute">
+            <Argument>bash</Argument>
+            <Argument>-c</Argument>
+            <Argument>if ! grep -qF "@TargetDir@/alif" ~/.zshrc 2>/dev/null; then echo 'export PATH=@TargetDir@/alif:$PATH' >> ~/.zshrc; fi</Argument>
         </Operation>
         <Operation name="Execute">
             <Argument>bash</Argument>

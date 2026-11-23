@@ -9,6 +9,6 @@ DerivedData
 *.eddx
 *.xopp
 *.DS_Store
-/taif/build
+*build
 *.pro.user
 /.obsidian

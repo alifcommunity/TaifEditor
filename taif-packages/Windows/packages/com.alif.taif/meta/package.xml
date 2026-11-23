@@ -2,8 +2,8 @@
 <Package>
     <DisplayName>Taif</DisplayName>
     <Description>Taif Editor for Alif language.</Description>
-    <Version>3.3.0</Version>
-    <ReleaseDate>2026-05-18</ReleaseDate>
+    <Version>3.4.0</Version>
+    <ReleaseDate>2026-12-07</ReleaseDate>
     <Licenses>
         <License name="Public License Agreement" file="license.txt" />
     </Licenses>
@@ -16,18 +16,21 @@
             <Argument>
             $newPath = "@TargetDir@\alif";
             $existingPath = [System.Environment]::GetEnvironmentVariable('PATH', [System.EnvironmentVariableTarget]::User);
-            $updatedPath = "$existingPath;$newPath";
-            [System.Environment]::SetEnvironmentVariable('PATH', $updatedPath, [System.EnvironmentVariableTarget]::User);
+            if (-not ($existingPath -split ';' | Where-Object { $_ -eq $newPath })) {
+                $updatedPath = "$existingPath;$newPath";
+                [System.Environment]::SetEnvironmentVariable('PATH', $updatedPath, [System.EnvironmentVariableTarget]::User);
+            }
             </Argument>
         </Operation>
+        <!-- Create a shortcut on the desktop -->
         <Operation name="CreateShortcut">
-            <Argument>@TargetDir@\Taif.exe</Argument> <!-- Path to your .exe file -->
-            <Argument>@DesktopDir@\Taif.lnk</Argument> <!-- Shortcut location (desktop) -->
+            <Argument>@TargetDir@\Taif.exe</Argument>
+            <Argument>@DesktopDir@\Taif.lnk</Argument>
         </Operation>
         <!-- Create a shortcut in the Start Menu -->
         <Operation name="CreateShortcut">
-            <Argument>@TargetDir@\Taif.exe</Argument> <!-- Path to your .exe file -->
-            <Argument>@StartMenuDir@\Taif.lnk</Argument> <!-- Shortcut location (Start Menu) -->
+            <Argument>@TargetDir@\Taif.exe</Argument>
+            <Argument>@StartMenuDir@\Taif.lnk</Argument>
         </Operation>
     </Operations>
 </Package>

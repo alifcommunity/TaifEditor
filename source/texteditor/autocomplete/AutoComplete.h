@@ -8,14 +8,30 @@ enum CompletionType {
     Keyword,
     Snippet,
     Builtin,
-    DynamicWord
+    DynamicWord,
+    SemanticSymbol
+};
+
+/** UI-only semantic subtype. Keeps the completion UI independent of SymbolTable. */
+enum class CompletionSemanticKind : quint8 {
+    None,
+    Function,
+    Class,
+    Attribute,
+    Parameter,
+    Local,
+    LoopVariable,
+    Import,
+    Builtin,
+    Unknown
 };
 
 struct CompletionItem {
     QString label;
     QString completion;
-    QString description; // New field for the UI
-    CompletionType type;
+    QString description;
+    CompletionType type = CompletionType::Keyword;
+    CompletionSemanticKind semanticKind = CompletionSemanticKind::None;
 };
 
 // Abstract Strategy Interface

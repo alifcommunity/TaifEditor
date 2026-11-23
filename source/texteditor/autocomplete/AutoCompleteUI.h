@@ -6,8 +6,17 @@
 #include <QStyledItemDelegate>
 #include <QListView>
 #include <QLabel>
+#include <QColor>
 
+struct CompletionVisual final {
+    QColor color;
+    QString icon;
+    QString category;
+};
 
+/** Complete, defensive mapping for every completion type and semantic subtype. */
+[[nodiscard]] CompletionVisual completionVisual(
+    CompletionType type, CompletionSemanticKind semanticKind = CompletionSemanticKind::None);
 
 // --- Custom Model ---
 class CompletionModel : public QAbstractListModel {
@@ -18,6 +27,7 @@ public:
         QString completion;
         QString description;
         CompletionType type;
+        CompletionSemanticKind semanticKind = CompletionSemanticKind::None;
     };
 
     explicit CompletionModel(QObject *parent = nullptr);
