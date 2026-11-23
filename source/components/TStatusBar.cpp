@@ -1,5 +1,7 @@
 #include "TStatusBar.h"
 
+#include <QCoreApplication>
+#include <QDir>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QProcess>
@@ -146,11 +148,17 @@ QWidget* TStatusBar::createSegment(const QString& objectName, QLabel*& label) {
 }
 
 void TStatusBar::requestInterpreterInfo() {
+    // QProcess inherits the editor's launch directory, which is commonly the
+    // user's home directory when a desktop entry starts the editor. Resolve
+    // the bundled interpreter from the installed application directory instead
+    // of relying on that unrelated current working directory.
 #if defined(Q_OS_WIN)
-    const QString program = QStringLiteral("alif/alif.exe");
+    const QString interpreterName = QStringLiteral("alif/alif.exe");
 #else
-    const QString program = QStringLiteral("./alif/alif");
+    const QString interpreterName = QStringLiteral("alif/alif");
 #endif
+    const QString program = QDir(QCoreApplication::applicationDirPath())
+                                .filePath(interpreterName);
     const QString command = QStringLiteral("%1 -ن").arg(program);
     auto* const process = new QProcess(this);
     process->setProcessChannelMode(QProcess::SeparateChannels);

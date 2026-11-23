@@ -1214,6 +1214,13 @@ void Taif::showAndRaiseDock(QDockWidget* const dock) {
                 workingDirectory = QFileInfo(editor->filePath).absolutePath();
             }
         }
+        if (!QDir(workingDirectory).exists()) {
+            // A Linux desktop entry normally launches the editor with the
+            // user's home directory as cwd. Keep the embedded terminal beside
+            // the installed editor when no project or document directory is
+            // available immediately after installation.
+            workingDirectory = QCoreApplication::applicationDirPath();
+        }
         systemTerminal->setTerminalWorkingDirectory(workingDirectory);
     }
     DockableConsoleToolFactory::showAndActivate(dock);
